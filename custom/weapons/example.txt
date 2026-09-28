@@ -51,14 +51,8 @@ Nomad Knife
 Skeleton Knife
 Survival Knife
 Paracord Knife
-Bloodhound Gloves
-Sport Gloves
-Driver Gloves
-Hand Wraps
-Moto Gloves
-Specialist Gloves
-Hydra Gloves
-Broken Fang Gloves
+любая перчатка
+любой стикер
 редкости:
 r1	Mil-Spec Синий
 r2	Restricted Фиолетовый
