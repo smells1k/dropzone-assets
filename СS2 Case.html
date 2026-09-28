@@ -1,0 +1,8039 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DropZone</title>
+
+<style>
+:root{
+ --bg:#0c1116;
+ --p:#192129;
+ --p2:#222b33;
+ --line:#3d4953;
+ --txt:#e2e7ea;
+ --mut:#84919b;
+ --gold:#d9a23b;
+ --green:#819d48;
+ --red:#d95353;
+
+ --r1:#4b69ff;
+ --r2:#8847ff;
+ --r3:#d32ce6;
+ --r4:#eb4b4b;
+ --r5:#e6bd36;
+}
+
+*{box-sizing:border-box}
+
+html,body{
+ margin:0;
+ min-height:100%;
+}
+
+body{
+ color:var(--txt);
+ font-family:"Arial Narrow","Segoe UI",Arial,sans-serif;
+
+ background:
+ radial-gradient(
+  1200px 650px at 50% -180px,
+  #3b4853,
+  #202830 34%,
+  #10161b 72%
+ );
+
+ background-attachment:fixed;
+}
+
+button,input,select{
+ font:inherit;
+}
+
+button{
+ cursor:pointer;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+header{
+ height:82px;
+
+ display:flex;
+ align-items:center;
+ gap:18px;
+
+ padding:0 28px;
+
+ position:sticky;
+ top:0;
+ z-index:70;
+
+ background:
+ linear-gradient(
+  #171c20,
+  #0c1013
+ );
+
+ border-bottom:1px solid #414a51;
+
+ box-shadow:
+ 0 3px 16px #0008;
+}
+
+.logo{
+ width:270px;
+ height:76px;
+
+ display:flex;
+ align-items:center;
+ justify-content:flex-start;
+
+ flex:0 0 270px;
+
+ overflow:visible;
+}
+
+.dropzone-logo{
+ display:block;
+
+ width:255px;
+ height:70px;
+
+ max-width:none;
+ max-height:none;
+
+ object-fit:contain;
+ object-position:left center;
+
+ filter:
+ drop-shadow(0 4px 8px #000b);
+}
+
+.stat{
+ padding-left:12px;
+
+ border-left:1px solid #3b454d;
+
+ color:var(--mut);
+
+ font-size:9px;
+}
+
+.stat b{
+ display:block;
+
+ color:#eee;
+
+ font-size:12px;
+}
+
+.stat.money b{
+ color:#e5ad47;
+}
+
+.spacer{
+ flex:1;
+}
+
+/* =========================================================
+   BUTTON
+========================================================= */
+
+.btn{
+ padding:9px 16px;
+
+ border:1px solid #56616a;
+ border-radius:2px;
+
+ color:#eee;
+
+ background:
+ linear-gradient(
+  #4b555d,
+  #343c43
+ );
+
+ font-size:10px;
+ font-weight:800;
+
+ text-transform:uppercase;
+
+ box-shadow:
+ inset 0 1px #ffffff12,
+ 0 1px 3px #0008;
+
+ transition:
+ filter .12s,
+ transform .08s;
+}
+
+.btn:hover{
+ filter:brightness(1.15);
+}
+
+.btn:active{
+ transform:translateY(1px);
+}
+
+.btn:disabled{
+ opacity:.35;
+ cursor:default;
+ filter:grayscale(1);
+}
+
+.btn.green{
+ background:
+ linear-gradient(
+  #819e47,
+  #576e30
+ );
+
+ border-color:#829d4d;
+}
+
+.btn.gold{
+ color:#17120a;
+
+ background:
+ linear-gradient(
+  #e8b850,
+  #b97920
+ );
+
+ border-color:#dba943;
+}
+
+.btn.red{
+ background:
+ linear-gradient(
+  #7c4549,
+  #4e2e31
+ );
+
+ border-color:#815054;
+}
+
+.btn.sm{
+ padding:6px 10px;
+ font-size:9px;
+}
+
+/* =========================================================
+   MAIN
+========================================================= */
+
+main{
+ max-width:1480px;
+
+ margin:auto;
+
+ padding:
+ 20px 27px 70px;
+}
+
+.tabs{
+ height:44px;
+
+ display:flex;
+
+ margin-bottom:21px;
+
+ overflow-x:auto;
+
+ border-bottom:
+ 1px solid #46515a;
+}
+
+.tab{
+ flex:0 0 auto;
+
+ padding:0 23px;
+
+ border:0;
+ border-bottom:
+ 3px solid transparent;
+
+ color:#89959e;
+
+ background:transparent;
+
+ font-size:11px;
+ font-weight:800;
+}
+
+.tab:hover{
+ color:#fff;
+}
+
+.tab.active{
+ color:white;
+
+ border-bottom-color:
+ var(--gold);
+
+ background:
+ linear-gradient(
+  transparent,
+  #d9a23b12
+ );
+}
+
+.panel{
+ padding:18px;
+
+ margin-bottom:13px;
+
+ background:
+ linear-gradient(
+  #20282f,
+  #171d22
+ );
+
+ border:1px solid #3d474f;
+}
+
+h2{
+ margin:0 0 13px;
+
+ font-size:17px;
+ font-weight:600;
+}
+
+h3{
+ margin:0;
+}
+
+.muted{
+ color:var(--mut);
+
+ font-size:10px;
+}
+
+.toolbar{
+ display:flex;
+ align-items:center;
+
+ gap:10px;
+
+ margin-bottom:15px;
+
+ flex-wrap:wrap;
+}
+
+.search,
+.number-input,
+.select{
+ min-height:35px;
+
+ padding:8px 11px;
+
+ outline:0;
+
+ color:#ddd;
+
+ background:#151b20;
+
+ border:1px solid #4c565e;
+}
+
+.search{
+ width:320px;
+ max-width:100%;
+}
+
+.number-input{
+ width:160px;
+}
+
+.search:focus,
+.number-input:focus{
+ border-color:#79838c;
+}
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.loading{
+ min-height:520px;
+
+ display:flex;
+
+ align-items:center;
+ justify-content:center;
+
+ text-align:center;
+}
+
+.spinner{
+ width:44px;
+ height:44px;
+
+ margin:0 auto 14px;
+
+ border:3px solid #46515a;
+ border-top-color:var(--gold);
+
+ border-radius:50%;
+
+ animation:
+ rot .7s linear infinite;
+}
+
+@keyframes rot{
+ to{
+  transform:rotate(360deg);
+ }
+}
+
+/* =========================================================
+   CASE GRID
+========================================================= */
+
+.case-grid{
+ display:grid;
+
+ grid-template-columns:
+ repeat(
+  auto-fill,
+  minmax(205px,1fr)
+ );
+
+ gap:7px;
+}
+
+.case{
+ min-height:235px;
+
+ padding:13px;
+
+ position:relative;
+
+ overflow:hidden;
+
+ text-align:center;
+
+ cursor:pointer;
+
+ background:
+ linear-gradient(
+  150deg,
+  #272f36,
+  #181e23
+ );
+
+ border:1px solid #3b454e;
+}
+
+.case:hover{
+ border-color:#747f87;
+
+ background:
+ linear-gradient(
+  150deg,
+  #323b42,
+  #20272c
+ );
+}
+
+.case:after{
+ content:"";
+
+ position:absolute;
+
+ bottom:0;
+ left:0;
+ right:0;
+
+ height:3px;
+
+ background:var(--gold);
+
+ opacity:0;
+}
+
+.case:hover:after{
+ opacity:1;
+}
+
+.case-img{
+ height:150px;
+
+ display:flex;
+ align-items:center;
+ justify-content:center;
+}
+
+.case-img img{
+ max-height:140px;
+ max-width:96%;
+
+ object-fit:contain;
+
+ filter:
+ drop-shadow(
+  0 7px 10px #000a
+ );
+}
+
+.case-name{
+ min-height:31px;
+
+ color:#e6e9eb;
+
+ font-size:13px;
+ font-weight:700;
+}
+
+.case-info{
+ margin-top:3px;
+
+ color:var(--mut);
+
+ font-size:9px;
+}
+
+.case-price{
+ margin-top:5px;
+
+ color:#d8aa4a;
+
+ font-size:12px;
+ font-weight:800;
+}
+
+/* =========================================================
+   CASE OPEN
+========================================================= */
+
+.case-head{
+ display:flex;
+ align-items:center;
+
+ gap:16px;
+
+ margin-bottom:13px;
+}
+
+.case-head img{
+ width:120px;
+ height:80px;
+
+ object-fit:contain;
+}
+
+.roulette{
+ height:205px;
+
+ position:relative;
+
+ overflow:hidden;
+
+ background:#090d10;
+
+ border:1px solid #46515a;
+
+ box-shadow:
+ inset 0 0 90px #000c;
+}
+
+.roulette:before,
+.roulette:after{
+ content:"";
+
+ position:absolute;
+
+ top:0;
+ bottom:0;
+
+ width:160px;
+
+ z-index:7;
+
+ pointer-events:none;
+}
+
+.roulette:before{
+ left:0;
+
+ background:
+ linear-gradient(
+  90deg,
+  #070a0c,
+  transparent
+ );
+}
+
+.roulette:after{
+ right:0;
+
+ background:
+ linear-gradient(
+  -90deg,
+  #070a0c,
+  transparent
+ );
+}
+
+.marker{
+ width:2px;
+
+ position:absolute;
+
+ z-index:10;
+
+ left:50%;
+ top:0;
+ bottom:0;
+
+ background:var(--gold);
+
+ box-shadow:
+ 0 0 9px #d9a23baa;
+}
+
+.marker:before,
+.marker:after{
+ content:"";
+
+ position:absolute;
+
+ left:50%;
+
+ transform:
+ translateX(-50%);
+
+ border-left:
+ 9px solid transparent;
+
+ border-right:
+ 9px solid transparent;
+}
+
+.marker:before{
+ top:0;
+
+ border-top:
+ 13px solid var(--gold);
+}
+
+.marker:after{
+ bottom:0;
+
+ border-bottom:
+ 13px solid var(--gold);
+}
+
+.strip{
+ height:100%;
+
+ display:flex;
+
+ gap:4px;
+
+ padding:10px 0;
+
+ will-change:transform;
+}
+
+/* =========================================================
+   ITEM
+========================================================= */
+
+.item{
+ --rar:var(--r1);
+
+ width:158px;
+ flex:0 0 158px;
+
+ min-height:170px;
+
+ padding:8px;
+
+ position:relative;
+
+ overflow:hidden;
+
+ background:
+ linear-gradient(
+  150deg,
+  #292f35,
+  #161c20
+ );
+
+ border:
+ 1px solid #333d44;
+
+ border-bottom:
+ 5px solid var(--rar);
+}
+
+.r1{--rar:var(--r1)}
+.r2{--rar:var(--r2)}
+.r3{--rar:var(--r3)}
+.r4{--rar:var(--r4)}
+.r5{--rar:var(--r5)}
+
+.item:before{
+ content:"";
+
+ position:absolute;
+
+ inset:0;
+
+ pointer-events:none;
+
+ background:
+ radial-gradient(
+  circle at 50% 35%,
+  color-mix(
+   in srgb,
+   var(--rar) 18%,
+   transparent
+  ),
+  transparent 65%
+ );
+}
+
+.item-img{
+ height:95px;
+
+ display:flex;
+
+ align-items:center;
+ justify-content:center;
+
+ position:relative;
+}
+
+.item-img img{
+ width:100%;
+ height:90px;
+
+ object-fit:contain;
+
+ filter:
+ drop-shadow(
+  0 5px 7px #0009
+ );
+}
+
+.weapon,
+.skin,
+.item-foot{
+ position:relative;
+}
+
+.weapon{
+ color:#96a1aa;
+
+ font-size:9px;
+
+ white-space:nowrap;
+
+ overflow:hidden;
+
+ text-overflow:ellipsis;
+}
+
+.skin{
+ height:25px;
+
+ color:#e7e9eb;
+
+ font-size:10px;
+ font-weight:700;
+
+ overflow:hidden;
+}
+
+.item-foot{
+ color:#7e8992;
+
+ font-size:8px;
+
+ line-height:1.35;
+}
+
+.price{
+ color:#d1a34c;
+}
+
+.st{
+ color:#d2743c;
+ font-weight:800;
+}
+
+.pool,
+.inventory,
+.select-grid,
+.shop-grid{
+ display:grid;
+
+ grid-template-columns:
+ repeat(
+  auto-fill,
+  minmax(155px,1fr)
+ );
+
+ gap:5px;
+}
+
+.pool .item,
+.inventory .item,
+.select-grid .item,
+.shop-grid .item{
+ width:auto;
+}
+
+/* =========================================================
+   SECRET
+========================================================= */
+
+.secret-item{
+ --rar:var(--r5);
+
+ background:
+ radial-gradient(
+  circle,
+  #a47d2233,
+  #211b0b 68%
+ ),
+ linear-gradient(
+  145deg,
+  #493b16,
+  #171307
+ ) !important;
+
+ border-bottom-color:
+ #e6bd36 !important;
+
+ box-shadow:
+ inset 0 0 30px #f5c7411f,
+ 0 0 12px #d8a22540;
+}
+
+.secret-image-box{
+ height:110px;
+
+ display:flex;
+
+ align-items:center;
+ justify-content:center;
+
+ position:relative;
+
+ z-index:3;
+}
+
+.secret-image{
+ width:100%;
+ height:100%;
+
+ object-fit:contain;
+
+ filter:
+ drop-shadow(
+  0 0 7px #fff1a0aa
+ )
+ drop-shadow(
+  0 0 20px #dca627bb
+ );
+
+ animation:
+ secretGlow 1.5s
+ ease-in-out
+ infinite alternate;
+}
+
+@keyframes secretGlow{
+ to{
+  filter:
+  drop-shadow(
+   0 0 11px #fff2aadd
+  )
+  drop-shadow(
+   0 0 31px #d99a1ddd
+  );
+ }
+}
+
+.secret-name{
+ position:relative;
+
+ z-index:3;
+
+ color:#e7c452;
+
+ font-size:9px;
+ font-weight:900;
+
+ text-align:center;
+}
+
+.secret-sub{
+ position:relative;
+
+ z-index:3;
+
+ color:#e7d89c;
+
+ font-size:9px;
+
+ text-align:center;
+}
+
+/* =========================================================
+   ODDS
+========================================================= */
+
+.odds{
+ display:grid;
+
+ grid-template-columns:
+ repeat(5,1fr);
+
+ gap:4px;
+
+ margin-top:9px;
+}
+
+.odd{
+ padding:7px;
+
+ color:#89949c;
+
+ background:#11161a;
+
+ border:1px solid #303940;
+
+ font-size:9px;
+}
+
+.odd b{
+ display:block;
+
+ color:#eee;
+}
+
+.odd-line{
+ height:2px;
+
+ margin-top:4px;
+
+ background:var(--rar);
+}
+
+.controls{
+ display:flex;
+
+ align-items:center;
+ justify-content:center;
+
+ gap:8px;
+
+ margin-top:14px;
+
+ flex-wrap:wrap;
+}
+
+/* =========================================================
+   INVENTORY
+========================================================= */
+
+.inv-wrap,
+.pick-wrap,
+.shop-wrap{
+ position:relative;
+}
+
+.sell,
+.inspect-inv,
+.pick-button,
+.buy-button{
+ position:absolute;
+
+ z-index:5;
+
+ padding:5px 7px;
+
+ border:1px solid #5c6770;
+
+ color:#eee;
+
+ background:#10161be8;
+
+ font-size:8px;
+ font-weight:800;
+
+ opacity:0;
+
+ transition:.12s;
+}
+
+.inspect-inv{
+ left:5px;
+ top:5px;
+}
+
+.sell{
+ left:0;
+ right:0;
+ bottom:0;
+
+ background:#5c7534ed;
+
+ border:0;
+}
+
+.pick-button,
+.buy-button{
+ right:5px;
+ top:5px;
+}
+
+.inv-wrap:hover .sell,
+.inv-wrap:hover .inspect-inv,
+.pick-wrap:hover .pick-button,
+.shop-wrap:hover .buy-button{
+ opacity:1;
+}
+
+.pick-wrap.selected .item{
+ outline:2px solid #dfaa3a;
+ outline-offset:-2px;
+}
+
+.empty{
+ grid-column:1/-1;
+
+ padding:60px;
+
+ text-align:center;
+
+ color:#7e8992;
+}
+
+/* =========================================================
+   CLICKER
+========================================================= */
+
+.clicker-layout{
+ display:grid;
+
+ grid-template-columns:
+ minmax(300px,1fr)
+ 330px;
+
+ gap:14px;
+}
+
+.click-zone{
+ min-height:470px;
+
+ position:relative;
+
+ overflow:hidden;
+
+ display:flex;
+
+ align-items:center;
+ justify-content:center;
+
+ background:
+ radial-gradient(
+  circle,
+  #364552,
+  #192129 48%,
+  #10151a 80%
+ );
+
+ border:1px solid #48545e;
+}
+
+.coin{
+ width:220px;
+ height:220px;
+
+ border-radius:50%;
+
+ border:7px solid #d6a138;
+
+ display:flex;
+
+ align-items:center;
+ justify-content:center;
+
+ text-align:center;
+
+ background:
+ radial-gradient(
+  circle at 35% 28%,
+  #ffe39a,
+  #dda632 30%,
+  #855810 75%
+ );
+
+ box-shadow:
+ inset 0 0 25px #fff6,
+ 0 15px 35px #0009,
+ 0 0 25px #d59b2b33;
+
+ color:#3a2608;
+
+ font-size:27px;
+ font-weight:900;
+
+ cursor:pointer;
+}
+
+.coin:active{
+ transform:scale(.94);
+}
+
+.click-float{
+ position:absolute;
+
+ pointer-events:none;
+
+ color:#f5c650;
+
+ font-weight:900;
+
+ text-shadow:
+ 0 2px 3px #000;
+
+ animation:
+ floatUp .8s
+ ease-out forwards;
+}
+
+@keyframes floatUp{
+ to{
+  transform:
+  translateY(-90px)
+  scale(1.2);
+
+  opacity:0;
+ }
+}
+
+.click-stats{
+ display:grid;
+
+ gap:9px;
+}
+
+.info-box{
+ padding:14px;
+
+ background:#11171c;
+
+ border:1px solid #35424d;
+}
+
+.info-box strong{
+ display:block;
+
+ margin-top:5px;
+
+ color:#e3ad43;
+
+ font-size:20px;
+}
+
+.progress{
+ height:7px;
+
+ margin-top:8px;
+
+ background:#0d1115;
+
+ border:1px solid #313b44;
+}
+
+.progress>div{
+ height:100%;
+
+ background:
+ linear-gradient(
+  90deg,
+  #9c6d1b,
+  #e1b348
+ );
+}
+
+/* =========================================================
+   UPGRADER
+========================================================= */
+
+.upgrader-panel.success{
+ animation:
+ upgradeSuccessFlash .8s ease;
+}
+
+.upgrader-panel.fail{
+ animation:
+ upgradeFailFlash .8s ease;
+}
+
+@keyframes upgradeSuccessFlash{
+ 40%{
+  border-color:#8ab653;
+
+  box-shadow:
+  0 0 70px #80ae4e77,
+  inset 0 0 50px #80ae4e22;
+ }
+}
+
+@keyframes upgradeFailFlash{
+ 40%{
+  border-color:#cf5458;
+
+  box-shadow:
+  0 0 70px #ca474c77,
+  inset 0 0 50px #ca474c22;
+ }
+}
+
+.upgrader{
+ display:grid;
+
+ grid-template-columns:
+ 1fr 200px 1fr;
+
+ gap:12px;
+}
+
+.up-slot{
+ min-height:290px;
+
+ padding:15px;
+
+ display:flex;
+
+ flex-direction:column;
+
+ align-items:center;
+ justify-content:center;
+
+ text-align:center;
+
+ background:
+ radial-gradient(
+  circle,
+  #29333b,
+  #151b20 70%
+ );
+
+ border:1px solid #46515a;
+}
+
+.up-slot img{
+ width:100%;
+ height:145px;
+
+ object-fit:contain;
+}
+
+.up-center{
+ display:flex;
+
+ flex-direction:column;
+
+ align-items:center;
+ justify-content:center;
+}
+
+.up-wheel{
+ --chance:0;
+
+ width:175px;
+ height:175px;
+
+ position:relative;
+
+ border-radius:50%;
+
+ background:#141b21;
+
+ box-shadow:
+ 0 0 0 1px #4d5962,
+ 0 12px 30px #0009,
+ inset 0 0 35px #0009;
+}
+
+.up-wheel-dial{
+ position:absolute;
+
+ inset:0;
+
+ border-radius:50%;
+
+ background:
+ conic-gradient(
+  from 0deg,
+  #7ca24c 0%,
+  #8ab356
+  calc(var(--chance) * 1%),
+  #854145
+  calc(var(--chance) * 1%),
+  #713639 100%
+ );
+}
+
+.up-wheel-dial:after{
+ content:"";
+
+ position:absolute;
+
+ inset:14px;
+
+ border-radius:50%;
+
+ background:
+ radial-gradient(
+  circle,
+  #212b33,
+  #12181d 72%
+ );
+
+ border:1px solid #43505a;
+}
+
+.chance-text{
+ position:absolute;
+
+ inset:0;
+
+ z-index:10;
+
+ display:flex;
+
+ align-items:center;
+ justify-content:center;
+
+ color:#fff;
+
+ font-size:24px;
+ font-weight:900;
+
+ pointer-events:none;
+}
+
+.up-pointer-arm{
+ position:absolute;
+
+ z-index:20;
+
+ inset:-13px;
+
+ pointer-events:none;
+
+ transform-origin:50% 50%;
+
+ transform:rotate(0deg);
+
+ will-change:transform;
+}
+
+.up-pointer{
+ position:absolute;
+
+ left:50%;
+ top:-3px;
+
+ width:0;
+ height:0;
+
+ transform:
+ translateX(-50%);
+
+ border-left:
+ 9px solid transparent;
+
+ border-right:
+ 9px solid transparent;
+
+ border-top:
+ 24px solid #efbd46;
+
+ filter:
+ drop-shadow(
+  0 0 6px #dc9f28aa
+ );
+}
+
+.up-wheel-center{
+ width:5px;
+ height:5px;
+
+ position:absolute;
+
+ z-index:11;
+
+ left:50%;
+ top:50%;
+
+ transform:
+ translate(-50%,-50%);
+
+ border-radius:50%;
+
+ background:#d5a13c;
+}
+
+.up-status{
+ min-height:28px;
+
+ margin-top:9px;
+
+ color:var(--mut);
+
+ font-size:10px;
+
+ text-align:center;
+}
+
+.up-targets{
+ max-height:410px;
+
+ overflow:auto;
+}
+
+/* =========================================================
+   MULTI
+========================================================= */
+
+.multi-reveal{
+ width:min(1050px,96vw);
+
+ padding:22px;
+
+ background:#151c22;
+
+ border:1px solid #46515a;
+}
+
+.multi-title{
+ margin-bottom:15px;
+
+ text-align:center;
+
+ font-size:18px;
+ font-weight:800;
+}
+
+.reveal-grid{
+ display:grid;
+
+ grid-template-columns:
+ repeat(auto-fit,minmax(135px,1fr));
+
+ gap:7px;
+}
+
+.reveal-card{
+ opacity:0;
+
+ transform:
+ scale(.78)
+ translateY(20px);
+
+ transition:.35s;
+}
+
+.reveal-card.revealed{
+ opacity:1;
+
+ transform:none;
+}
+
+.reveal-card.rare-flash{
+ animation:
+ rareFlash .7s;
+}
+
+@keyframes rareFlash{
+ 50%{
+  filter:brightness(1.7);
+ }
+}
+
+/* =========================================================
+   CRAFT
+========================================================= */
+
+.craft-top{
+ display:grid;
+
+ grid-template-columns:
+ 1fr 260px;
+
+ gap:13px;
+}
+
+.craft-selected{
+ min-height:200px;
+
+ display:flex;
+
+ flex-wrap:wrap;
+
+ gap:5px;
+
+ padding:10px;
+
+ background:#11171c;
+
+ border:1px solid #38444e;
+}
+
+.craft-mini{
+ --rar:var(--r1);
+
+ width:115px;
+
+ padding:6px;
+
+ background:#202830;
+
+ border-bottom:
+ 3px solid var(--rar);
+
+ font-size:9px;
+}
+
+.craft-mini img{
+ width:100%;
+ height:70px;
+
+ object-fit:contain;
+}
+
+.craft-result{
+ display:flex;
+
+ flex-direction:column;
+
+ align-items:center;
+ justify-content:center;
+
+ padding:15px;
+
+ text-align:center;
+
+ background:#11171c;
+
+ border:1px solid #38444e;
+}
+
+/* =========================================================
+   SWAP
+========================================================= */
+
+.swap-header{
+ display:grid;
+
+ grid-template-columns:
+ repeat(4,minmax(130px,1fr));
+
+ gap:8px;
+
+ margin-bottom:14px;
+}
+
+.swap-box{
+ padding:12px;
+
+ background:#11171c;
+
+ border:1px solid #38444e;
+}
+
+.swap-box label{
+ display:block;
+
+ margin-bottom:5px;
+
+ color:var(--mut);
+
+ font-size:9px;
+}
+
+.shop-wrap.unaffordable{
+ opacity:.5;
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.modal{
+ position:fixed;
+
+ inset:0;
+
+ z-index:100;
+
+ display:none;
+
+ align-items:center;
+ justify-content:center;
+
+ padding:15px;
+
+ background:#050709ed;
+}
+
+.modal.open{
+ display:flex;
+}
+
+.result{
+ --rar:var(--r1);
+
+ width:min(570px,95vw);
+
+ padding:27px;
+
+ text-align:center;
+
+ background:#182027;
+
+ border:1px solid #515c64;
+
+ border-bottom:
+ 4px solid var(--rar);
+}
+
+.result img{
+ width:100%;
+ height:230px;
+
+ object-fit:contain;
+}
+
+.result-rarity{
+ color:var(--rar);
+
+ font-size:10px;
+ font-weight:900;
+}
+
+.result-price{
+ margin:12px;
+
+ color:#d6a442;
+
+ font-size:23px;
+}
+
+.result-buttons{
+ display:flex;
+
+ justify-content:center;
+
+ gap:7px;
+
+ flex-wrap:wrap;
+}
+
+/* =========================================================
+   INSPECT
+========================================================= */
+
+.inspect{
+ position:fixed;
+
+ inset:0;
+
+ z-index:500;
+
+ display:none;
+
+ overflow:hidden;
+
+ background:
+ radial-gradient(
+  ellipse,
+  #596875,
+  #333d45 30%,
+  #151b20 70%,
+  #090c0f
+ );
+}
+
+.inspect.open{
+ display:block;
+}
+
+.inspect-stage{
+ position:absolute;
+
+ inset:0;
+
+ display:flex;
+
+ align-items:center;
+ justify-content:center;
+
+ overflow:hidden;
+}
+
+.inspect-weapon{
+ max-width:75vw;
+ max-height:67vh;
+
+ pointer-events:none;
+
+ object-fit:contain;
+}
+
+.inspect-close{
+ position:absolute;
+
+ z-index:5;
+
+ top:20px;
+ left:20px;
+}
+
+.inspect-reset{
+ position:absolute;
+
+ z-index:5;
+
+ right:20px;
+ top:20px;
+}
+
+.inspect-info{
+ position:absolute;
+
+ z-index:5;
+
+ left:30px;
+ bottom:28px;
+}
+
+.inspect-title{
+ font-size:24px;
+}
+
+.inspect-rarity{
+ font-size:10px;
+ font-weight:900;
+}
+
+.inspect-meta{
+ color:#a0abb3;
+
+ font-size:10px;
+}
+
+.toast{
+ position:fixed;
+
+ z-index:900;
+
+ right:18px;
+ bottom:18px;
+
+ padding:10px 14px;
+
+ background:#202931;
+
+ border:1px solid #4b5964;
+
+ opacity:0;
+
+ transform:
+ translateY(50px);
+
+ transition:.2s;
+}
+
+.toast.show{
+ opacity:1;
+ transform:none;
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media(max-width:800px){
+
+ header{
+  height:65px;
+  padding:0 10px;
+ }
+
+ .logo{
+  width:145px;
+  height:60px;
+  flex-basis:145px;
+ }
+
+ .dropzone-logo{
+  width:140px;
+  height:58px;
+ }
+
+ .stat:nth-of-type(n+3){
+  display:none;
+ }
+
+ main{
+  padding:12px;
+ }
+
+ .case-grid{
+  grid-template-columns:
+  repeat(2,1fr);
+ }
+
+ .clicker-layout,
+ .craft-top,
+ .swap-header{
+  grid-template-columns:1fr;
+ }
+
+ .upgrader{
+  grid-template-columns:1fr;
+ }
+
+ .odds{
+  grid-template-columns:
+  repeat(2,1fr);
+ }
+
+}
+</style>
+</head>
+
+<body>
+
+<header>
+
+<div class="logo">
+ <img
+  class="dropzone-logo"
+  src="https://media.discordapp.net/attachments/1520747000834822158/1553312477301702757/Max_a____2_.png?ex=6ab8ca79&is=6ab778f9&hm=f847c077e8dc182f5f4f3be385cf2acf39f8a76cc4cceb8319da844f23423173&=&format=webp&quality=lossless"
+  alt="DropZone">
+</div>
+
+<div class="stat money">
+ КРЕДИТЫ
+ <b id="balance">0 CR</b>
+</div>
+
+<div class="stat">
+ ОТКРЫТО
+ <b id="opened">0</b>
+</div>
+
+<div class="stat">
+ ИНВЕНТАРЬ
+ <b id="invValue">0 CR</b>
+</div>
+
+<div class="spacer"></div>
+
+<button
+ id="resetBtn"
+ class="btn red sm">
+ СБРОС
+</button>
+
+</header>
+
+
+<main>
+
+<div
+ id="loading"
+ class="loading">
+
+<div>
+
+<div class="spinner"></div>
+
+<b>DROPZONE</b>
+
+<div
+ id="loadText"
+ class="muted">
+ Загрузка...
+</div>
+
+</div>
+
+</div>
+
+
+<div
+ id="app"
+ hidden>
+
+<nav class="tabs">
+
+<button class="tab active" data-tab="cases">
+ КЕЙСЫ
+</button>
+
+<button class="tab" data-tab="clicker">
+ КЛИКЕР
+</button>
+
+<button class="tab" data-tab="upgrader">
+ UPGRADER
+</button>
+
+<button class="tab" data-tab="craft">
+ КРАФТ
+</button>
+
+<button class="tab" data-tab="swap">
+ SWAP
+</button>
+
+<button class="tab" data-tab="inventory">
+ ИНВЕНТАРЬ (<span id="invCount">0</span>)
+</button>
+
+</nav>
+
+
+<!-- CASES -->
+
+<section id="casesTab">
+
+<div id="caseSelect">
+
+<div class="toolbar">
+
+<input
+ id="search"
+ class="search"
+ placeholder="Поиск">
+
+<span
+ id="caseCount"
+ class="muted">
+</span>
+
+</div>
+
+<div
+ id="caseGrid"
+ class="case-grid">
+</div>
+
+</div>
+
+
+<div
+ id="caseOpen"
+ hidden>
+
+<button
+ id="backBtn"
+ class="btn sm"
+ style="margin-bottom:10px">
+ ← НАЗАД
+</button>
+
+
+<div class="panel">
+
+<div class="case-head">
+
+<img id="caseImage">
+
+<div>
+
+<h2 id="caseName"></h2>
+
+<span
+ id="caseMeta"
+ class="muted">
+</span>
+
+</div>
+
+</div>
+
+
+<div class="roulette">
+
+<div class="marker"></div>
+
+<div
+ id="strip"
+ class="strip">
+</div>
+
+</div>
+
+
+<div
+ id="odds"
+ class="odds">
+</div>
+
+
+<div class="controls">
+
+<select
+ id="amount"
+ class="select">
+
+<option value="1">x1</option>
+<option value="5">x5</option>
+<option value="10">x10</option>
+
+</select>
+
+<button
+ id="openBtn"
+ class="btn green">
+</button>
+
+<label class="muted">
+
+<input
+ id="fast"
+ type="checkbox">
+
+ Быстро
+
+</label>
+
+</div>
+
+</div>
+
+
+<div class="panel">
+
+<h2>
+ Содержимое
+ <span
+  id="contentCount"
+  class="muted">
+ </span>
+</h2>
+
+<div
+ id="contents"
+ class="pool">
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- CLICKER -->
+
+<section
+ id="clickerTab"
+ hidden>
+
+<div class="clicker-layout">
+
+<div
+ id="clickZone"
+ class="click-zone">
+
+<div
+ id="coin"
+ class="coin">
+
+DROP<br>ZONE
+
+</div>
+
+</div>
+
+
+<div class="click-stats">
+
+<div class="info-box">
+ ЗА КЛИК
+ <strong id="clickPower">1 CR</strong>
+</div>
+
+<div class="info-box">
+ КЛИКОВ
+ <strong id="clickCount">0</strong>
+</div>
+
+<div class="info-box">
+
+ СЕРИЯ
+
+ <strong id="combo">
+  ×1.00
+ </strong>
+
+ <div class="progress">
+  <div id="comboBar"></div>
+ </div>
+
+</div>
+
+<div class="info-box">
+
+ УЛУЧШЕНИЕ
+
+ <strong id="clickUpgradeCost">
+  250 CR
+ </strong>
+
+ <button
+  id="buyClick"
+  class="btn green"
+  style="
+   width:100%;
+   margin-top:8px
+  ">
+
+  УЛУЧШИТЬ
+
+ </button>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- UPGRADER -->
+
+<section
+ id="upgraderTab"
+ hidden>
+
+<div
+ id="upgraderPanel"
+ class="panel upgrader-panel">
+
+<h2>UPGRADER</h2>
+
+
+<div class="upgrader">
+
+<div
+ id="upSource"
+ class="up-slot">
+
+ <div class="muted">
+  ИСХОДНЫЙ ПРЕДМЕТ
+ </div>
+
+</div>
+
+
+<div class="up-center">
+
+<div
+ id="upWheel"
+ class="up-wheel">
+
+<div class="up-wheel-dial"></div>
+
+<div
+ id="upPointer"
+ class="up-pointer-arm">
+
+ <div class="up-pointer"></div>
+
+</div>
+
+<div class="up-wheel-center"></div>
+
+<div
+ id="upgradeChance"
+ class="chance-text">
+
+ 0.00%
+
+</div>
+
+</div>
+
+
+<button
+ id="upgradeBtn"
+ class="btn gold"
+ style="margin-top:16px">
+
+ UPGRADE
+
+</button>
+
+
+<div
+ id="upgradeStatus"
+ class="up-status">
+
+ Выбери предмет и цель
+
+</div>
+
+</div>
+
+
+<div
+ id="upTarget"
+ class="up-slot">
+
+ <div class="muted">
+  ЦЕЛЕВОЙ ПРЕДМЕТ
+ </div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<div class="panel">
+
+<div class="toolbar">
+
+<h2 style="margin:0">
+ ТВОИ ПРЕДМЕТЫ
+</h2>
+
+<button
+ id="freeStarter"
+ class="btn green sm">
+
+ ЗАБРАТЬ МИНИМАЛЬНЫЙ
+
+</button>
+
+</div>
+
+<div
+ id="upgradeInventory"
+ class="select-grid">
+</div>
+
+</div>
+
+
+<div class="panel">
+
+<h2>
+ ЦЕЛИ
+</h2>
+
+<div
+ id="upgradeTargets"
+ class="select-grid">
+</div>
+
+</div>
+
+</section>
+
+
+<!-- CRAFT -->
+
+<section
+ id="craftTab"
+ hidden>
+
+<div class="panel">
+
+<h2>КРАФТ</h2>
+
+<div class="craft-top">
+
+<div>
+
+<div
+ id="craftSelected"
+ class="craft-selected">
+</div>
+
+</div>
+
+<div
+ id="craftPreview"
+ class="craft-result">
+
+ <div class="muted">
+  Выбери минимум 3 предмета
+ </div>
+
+</div>
+
+</div>
+
+<div
+ style="
+  text-align:center;
+  margin-top:12px
+ ">
+
+<button
+ id="craftBtn"
+ class="btn gold">
+
+ СОЗДАТЬ
+
+</button>
+
+</div>
+
+</div>
+
+
+<div class="panel">
+
+<h2>ИНГРЕДИЕНТЫ</h2>
+
+<div
+ id="craftInventory"
+ class="select-grid">
+</div>
+
+</div>
+
+</section>
+
+
+<!-- SWAP -->
+
+<section
+ id="swapTab"
+ hidden>
+
+<div class="panel">
+
+<h2>SWAP MARKET</h2>
+
+
+<div class="swap-header">
+
+<div class="swap-box">
+
+ БАЛАНС
+
+ <div
+  id="swapBalance"
+  class="price">
+ </div>
+
+</div>
+
+
+<div class="swap-box">
+
+ БЮДЖЕТ
+
+ <input
+  id="swapBudget"
+  class="number-input"
+  type="number"
+  min="0">
+
+</div>
+
+
+<div class="swap-box">
+
+ ПОИСК
+
+ <input
+  id="swapSearch"
+  class="search"
+  placeholder="AK-47...">
+
+</div>
+
+
+<div class="swap-box">
+
+ РЕДКОСТЬ
+
+ <select
+  id="swapRarity"
+  class="select">
+
+  <option value="">Все</option>
+  <option value="r1">Mil-Spec</option>
+  <option value="r2">Restricted</option>
+  <option value="r3">Classified</option>
+  <option value="r4">Covert</option>
+
+ </select>
+
+</div>
+
+</div>
+
+
+<div class="toolbar">
+
+<button
+ id="swapUseAll"
+ class="btn sm">
+
+ ВЕСЬ БАЛАНС
+
+</button>
+
+<select
+ id="swapSort"
+ class="select">
+
+<option value="cheap">
+ Дешёвые
+</option>
+
+<option value="expensive">
+ Дорогие
+</option>
+
+</select>
+
+<span
+ id="swapCount"
+ class="muted">
+</span>
+
+</div>
+
+
+<div
+ id="swapGrid"
+ class="shop-grid">
+</div>
+
+</div>
+
+</section>
+
+
+<!-- INVENTORY -->
+
+<section
+ id="inventoryTab"
+ hidden>
+
+<div class="toolbar">
+
+<button
+ id="sortBtn"
+ class="btn sm">
+
+ ПО ЦЕНЕ
+
+</button>
+
+<button
+ id="sellAllBtn"
+ class="btn sm">
+
+ ПРОДАТЬ ВСЁ
+
+</button>
+
+</div>
+
+<div
+ id="inventory"
+ class="inventory">
+</div>
+
+</section>
+
+</div>
+
+</main>
+
+
+<!-- MODAL -->
+
+<div
+ id="modal"
+ class="modal">
+
+<div id="modalBody"></div>
+
+</div>
+
+
+<!-- INSPECT -->
+
+<div
+ id="inspect"
+ class="inspect">
+
+<button
+ id="inspectClose"
+ class="btn inspect-close">
+
+ ← НАЗАД
+
+</button>
+
+<button
+ id="inspectReset"
+ class="btn inspect-reset">
+
+ СБРОСИТЬ
+
+</button>
+
+
+<div
+ id="inspectStage"
+ class="inspect-stage">
+
+<img
+ id="inspectWeapon"
+ class="inspect-weapon"
+ draggable="false">
+
+</div>
+
+
+<div class="inspect-info">
+
+<div
+ id="inspectRarity"
+ class="inspect-rarity">
+</div>
+
+<div
+ id="inspectTitle"
+ class="inspect-title">
+</div>
+
+<div
+ id="inspectMeta"
+ class="inspect-meta">
+</div>
+
+</div>
+
+</div>
+
+
+<div
+ id="toast"
+ class="toast">
+</div>
+
+
+<script>
+"use strict";
+
+/* ============================================================
+   CONFIG
+============================================================ */
+
+const API =
+"https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/";
+
+const SECRET_IMAGE =
+"https://cdn.discordapp.com/attachments/1529703500051779625/1553301971937534033/rarespecialitem.png?ex=6ab8c0b1&is=6ab76f31&hm=5e513d2c79c2b4d7eeb9ab7a4996413dbdf1db4677e2a06cf364b5830a424b78&";
+
+const SAVE_KEY =
+"dropzone-v7";
+
+
+const WEAPON_ODDS = [
+ {cls:"r1",chance:.7992,name:"Mil-Spec"},
+ {cls:"r2",chance:.1598,name:"Restricted"},
+ {cls:"r3",chance:.032,name:"Classified"},
+ {cls:"r4",chance:.0064,name:"Covert"},
+ {cls:"r5",chance:.0026,name:"★ Rare Special"}
+];
+
+
+/*
+ Sticker probabilities.
+
+ Red = 0.64%, exactly as requested.
+
+ Remaining distribution:
+ r1 80.18%
+ r2 15.98%
+ r3 3.20%
+ r4 0.64%
+*/
+
+const STICKER_ODDS = [
+ {cls:"r1",chance:.8018,name:"High Grade"},
+ {cls:"r2",chance:.1598,name:"Remarkable"},
+ {cls:"r3",chance:.0320,name:"Exotic"},
+ {cls:"r4",chance:.0064,name:"Covert"}
+];
+
+
+const PRICE_RANGES = {
+
+ r1:[5,80],
+
+ r2:[45,600],
+
+ r3:[250,4000],
+
+ r4:[1500,50000],
+
+ r5:[15000,350000]
+
+};
+
+
+const WEARS = [
+
+ {
+  name:"Factory New",
+  short:"FN",
+  max:.07,
+  mult:1.8
+ },
+
+ {
+  name:"Minimal Wear",
+  short:"MW",
+  max:.15,
+  mult:1.35
+ },
+
+ {
+  name:"Field-Tested",
+  short:"FT",
+  max:.38,
+  mult:1
+ },
+
+ {
+  name:"Well-Worn",
+  short:"WW",
+  max:.45,
+  mult:.82
+ },
+
+ {
+  name:"Battle-Scarred",
+  short:"BS",
+  max:1.01,
+  mult:.67
+ }
+
+];
+
+
+const $ =
+id =>
+document.getElementById(id);
+
+
+/* ============================================================
+   STATE
+============================================================ */
+
+let state={
+
+ balance:10000,
+
+ opened:0,
+
+ inventory:[],
+
+ clicks:0,
+
+ clickLevel:1,
+
+ combo:0,
+
+ lastClick:0
+
+};
+
+
+try{
+
+ const stored=
+ localStorage.getItem(
+  SAVE_KEY
+ );
+
+
+ if(stored){
+
+  state={
+   ...state,
+   ...JSON.parse(
+    stored
+   )
+  };
+
+ }
+
+}catch(e){}
+
+
+let skins=[];
+
+let stickers=[];
+
+let redStickerPool=[];
+
+let containers=[];
+
+let currentCase=null;
+
+let spinning=false;
+
+let upSource=null;
+
+let upTarget=null;
+
+let upAnimating=false;
+
+let craftIds=
+new Set();
+
+
+/* ============================================================
+   HELPERS
+============================================================ */
+
+function save(){
+
+ try{
+
+  localStorage.setItem(
+   SAVE_KEY,
+   JSON.stringify(state)
+  );
+
+ }catch(e){}
+
+}
+
+
+function esc(value){
+
+ return String(value??"")
+ .replaceAll("&","&amp;")
+ .replaceAll("<","&lt;")
+ .replaceAll(">","&gt;")
+ .replaceAll('"',"&quot;");
+
+}
+
+
+function money(value){
+
+ return Math.round(
+  value
+ )
+ .toLocaleString(
+  "ru-RU"
+ )
+ +" CR";
+
+}
+
+
+function random(array){
+
+ return array[
+  Math.floor(
+   Math.random()*
+   array.length
+  )
+ ];
+
+}
+
+
+function uuid(){
+
+ return(
+  crypto.randomUUID
+  ?
+  crypto.randomUUID()
+  :
+  Date.now()+
+  "-"+
+  Math.random()
+ );
+
+}
+
+
+function hash(text){
+
+ let h=
+ 2166136261;
+
+
+ for(
+  let i=0;
+  i<text.length;
+  i++
+ ){
+
+  h^=
+  text.charCodeAt(i);
+
+
+  h=
+  Math.imul(
+   h,
+   16777619
+  );
+
+ }
+
+
+ return h>>>0;
+
+}
+
+
+function hash01(text){
+
+ return(
+  hash(text)%
+  100000
+ )/100000;
+
+}
+
+
+function imageOf(item){
+
+ if(!item)
+  return "";
+
+
+ if(
+  typeof item.image===
+  "string"
+ ){
+
+  return item.image;
+
+ }
+
+
+ if(
+  item.image &&
+  typeof item.image===
+  "object"
+ ){
+
+  return(
+   item.image.url ||
+   item.image.large ||
+   item.image.small ||
+   ""
+  );
+
+ }
+
+
+ return "";
+
+}
+
+
+function rarityFromName(name){
+
+ const text=
+ String(name||"")
+ .toLowerCase();
+
+
+ /*
+   CSGO-API rarity labels may differ
+   between stickers and weapon skins.
+ */
+
+ if(
+  text.includes(
+   "covert"
+  )
+  ||
+  text.includes(
+   "extraordinary"
+  )
+ ){
+
+  return "r4";
+
+ }
+
+
+ if(
+  text.includes(
+   "classified"
+  )
+  ||
+  text.includes(
+   "exotic"
+  )
+ ){
+
+  return "r3";
+
+ }
+
+
+ if(
+  text.includes(
+   "restricted"
+  )
+  ||
+  text.includes(
+   "remarkable"
+  )
+ ){
+
+  return "r2";
+
+ }
+
+
+ return "r1";
+
+}
+
+
+function normalize(item){
+
+ return{
+
+  id:
+  item.id,
+
+  name:
+  item.name ||
+  "Item",
+
+  weapon:
+  item.weapon?.name ||
+  item.name
+  ?.split("|")[0]
+  ?.trim() ||
+  "Item",
+
+  skin:
+  item.pattern?.name ||
+  item.name
+  ?.split("|")[1]
+  ?.trim() ||
+  item.name ||
+  "Item",
+
+  image:
+  imageOf(item),
+
+  rarity:
+  rarityFromName(
+   item.rarity?.name
+  ),
+
+  min:
+  Number.isFinite(
+   item.min_float
+  )
+  ?
+  item.min_float
+  :
+  0,
+
+  max:
+  Number.isFinite(
+   item.max_float
+  )
+  ?
+  item.max_float
+  :
+  1
+
+ };
+
+}
+
+
+function wearOf(float){
+
+ return(
+  WEARS.find(
+   wear=>
+   float<
+   wear.max
+  )
+  ||
+  WEARS[
+   WEARS.length-1
+  ]
+ );
+
+}
+
+
+function templatePrice(item){
+
+ const range=
+ PRICE_RANGES[
+  item.rarity
+ ]
+ ||
+ PRICE_RANGES.r1;
+
+
+ const value=
+ hash01(
+  item.name+
+  ":dropzone-market"
+ );
+
+
+ return Math.max(
+  1,
+  Math.round(
+   range[0]*
+   Math.pow(
+    range[1]/
+    range[0],
+    value
+   )
+  )
+ );
+
+}
+
+
+function notify(text){
+
+ const toast=
+ $("toast");
+
+
+ toast.textContent=
+ text;
+
+
+ toast.classList
+ .add(
+  "show"
+ );
+
+
+ clearTimeout(
+  toast.timer
+ );
+
+
+ toast.timer=
+ setTimeout(
+  ()=>toast
+  .classList
+  .remove(
+   "show"
+  ),
+  1700
+ );
+
+}
+
+
+/* ============================================================
+   SOUND
+============================================================ */
+
+let audioContext=null;
+
+let masterGain=null;
+
+
+function getAudio(){
+
+ if(
+  !audioContext
+ ){
+
+  audioContext=
+  new(
+   window.AudioContext ||
+   window.webkitAudioContext
+  )();
+
+
+  masterGain=
+  audioContext
+  .createGain();
+
+
+  masterGain
+  .gain
+  .value=
+  .45;
+
+
+  masterGain
+  .connect(
+   audioContext
+   .destination
+  );
+
+ }
+
+
+ if(
+  audioContext.state===
+  "suspended"
+ ){
+
+  audioContext
+  .resume();
+
+ }
+
+
+ return audioContext;
+
+}
+
+
+function tone(
+ frequency,
+ duration=.06,
+ volume=.04,
+ type="triangle",
+ delay=0
+){
+
+ try{
+
+  const ctx=
+  getAudio();
+
+
+  const start=
+  ctx.currentTime+
+  delay;
+
+
+  const oscillator=
+  ctx.createOscillator();
+
+
+  const gain=
+  ctx.createGain();
+
+
+  oscillator.type=
+  type;
+
+
+  oscillator
+  .frequency
+  .value=
+  frequency;
+
+
+  gain
+  .gain
+  .setValueAtTime(
+   volume,
+   start
+  );
+
+
+  gain
+  .gain
+  .exponentialRampToValueAtTime(
+   .0001,
+   start+
+   duration
+  );
+
+
+  oscillator
+  .connect(
+   gain
+  );
+
+
+  gain
+  .connect(
+   masterGain
+  );
+
+
+  oscillator
+  .start(
+   start
+  );
+
+
+  oscillator
+  .stop(
+   start+
+   duration+
+   .02
+  );
+
+ }catch(e){}
+
+}
+
+
+/* ============================================================
+   DATABASE
+============================================================ */
+
+async function getJSON(path){
+
+ const response=
+ await fetch(
+  API+path,
+  {
+   cache:"no-cache"
+  }
+ );
+
+
+ if(
+  !response.ok
+ ){
+
+  throw new Error(
+   path+
+   ": HTTP "+
+   response.status
+  );
+
+ }
+
+
+ return response.json();
+
+}
+
+
+async function load(){
+
+ try{
+
+  $("loadText")
+  .textContent=
+  "Загрузка скинов...";
+
+
+  const [
+   cratesData,
+   skinsData,
+   stickersData
+  ]=
+  await Promise.all([
+
+   getJSON(
+    "crates.json"
+   ),
+
+   getJSON(
+    "skins.json"
+   ),
+
+   getJSON(
+    "stickers.json"
+   )
+   .catch(
+    ()=>[]
+   )
+
+  ]);
+
+
+  skins=
+
+  (
+   Array.isArray(
+    skinsData
+   )
+   ?
+   skinsData
+   :
+   []
+  )
+
+  .map(
+   normalize
+  )
+
+  .filter(
+   item=>
+   item.image
+  );
+
+
+  stickers=
+
+  (
+   Array.isArray(
+    stickersData
+   )
+   ?
+   stickersData
+   :
+   []
+  )
+
+  .map(
+   item=>({
+
+    id:
+    item.id,
+
+    name:
+    item.name ||
+    "Sticker",
+
+    weapon:
+    "Sticker",
+
+    skin:
+    item.name ||
+    "Sticker",
+
+    image:
+    imageOf(item),
+
+    rarity:
+    rarityFromName(
+     item.rarity?.name
+    ),
+
+    min:0,
+
+    max:0
+
+   })
+  )
+
+  .filter(
+   item=>
+   item.image
+  );
+
+
+  /*
+    Global red sticker pool.
+
+    This guarantees that every sticker
+    pack can pay out a red sticker at
+    0.64%, even if its native contents
+    have no r4 item.
+  */
+
+  redStickerPool=
+
+  stickers.filter(
+   item=>
+   item.rarity===
+   "r4"
+  );
+
+
+  $("loadText")
+  .textContent=
+  "Создание контейнеров...";
+
+
+  buildContainers(
+   cratesData
+  );
+
+
+  $("loading")
+  .style
+  .display=
+  "none";
+
+
+  $("app")
+  .hidden=
+  false;
+
+
+  renderCases();
+
+  renderInventory();
+
+  update();
+
+ }
+ catch(error){
+
+  console.error(
+   error
+  );
+
+
+  $("loading")
+  .innerHTML=`
+
+   <div>
+
+    <h2
+     style="
+      color:#ff7272
+     ">
+     Ошибка загрузки
+    </h2>
+
+    <div
+     class="muted">
+
+     ${esc(error.message)}
+
+    </div>
+
+    <button
+     class="btn gold"
+     style="
+      margin-top:15px
+     "
+     onclick="
+      location.reload()
+     ">
+
+     Повторить
+
+    </button>
+
+   </div>
+  `;
+
+ }
+
+}
+
+
+/* ============================================================
+   CONTAINERS
+============================================================ */
+
+function containerPrice(
+ crate,
+ type
+){
+
+ if(
+  type===
+  "sticker"
+ ){
+
+  return 50;
+
+ }
+
+
+ return(
+  400+
+  (
+   hash(
+    crate.name
+   )%9
+  )*50
+ );
+
+}
+
+
+function buildContainers(
+ rawCrates
+){
+
+ const skinMap=
+ new Map(
+  skins.map(
+   item=>[
+    item.id,
+    item
+   ]
+  )
+ );
+
+
+ const stickerMap=
+ new Map(
+  stickers.map(
+   item=>[
+    item.id,
+    item
+   ]
+  )
+ );
+
+
+ containers=[];
+
+
+ for(
+  const crate
+  of rawCrates
+ ){
+
+  if(
+   !Array.isArray(
+    crate.contains
+   )
+   ||
+   !crate.contains.length
+  ){
+
+   continue;
+
+  }
+
+
+  const lower=
+  String(
+   crate.name||""
+  )
+  .toLowerCase();
+
+
+  const stickerType=
+
+  lower.includes(
+   "sticker"
+  )
+
+  ||
+
+  lower.includes(
+   "capsule"
+  );
+
+
+  const blocked=
+
+  lower.includes(
+   "souvenir"
+  )
+
+  ||
+
+  lower.includes(
+   "graffiti"
+  )
+
+  ||
+
+  lower.includes(
+   "patch"
+  )
+
+  ||
+
+  lower.includes(
+   "music kit"
+  )
+
+  ||
+
+  lower.includes(
+   "package"
+  );
+
+
+  if(blocked)
+   continue;
+
+
+  const normal=[];
+
+
+  for(
+   const reference
+   of crate.contains
+  ){
+
+   let item=
+
+   skinMap.get(
+    reference.id
+   )
+
+   ||
+
+   stickerMap.get(
+    reference.id
+   )
+
+   ||
+
+   null;
+
+
+   if(
+    !item &&
+    reference.image
+   ){
+
+    item=
+    normalize(
+     reference
+    );
+
+   }
+
+
+   if(
+    item?.image
+   ){
+
+    normal.push(
+     item
+    );
+
+   }
+
+  }
+
+
+  if(
+   normal.length<2
+  ){
+
+   continue;
+
+  }
+
+
+  if(
+   !stickerType &&
+   normal.length<5
+  ){
+
+   continue;
+
+  }
+
+
+  const rare=[];
+
+
+  for(
+   const reference
+   of crate.contains_rare||[]
+  ){
+
+   let item=
+
+   skinMap.get(
+    reference.id
+   )
+
+   ||
+
+   stickerMap.get(
+    reference.id
+   )
+
+   ||
+
+   null;
+
+
+   if(
+    !item &&
+    reference.image
+   ){
+
+    item=
+    normalize(
+     reference
+    );
+
+   }
+
+
+   if(
+    item?.image
+   ){
+
+    rare.push({
+
+     ...item,
+
+     rarity:"r5"
+
+    });
+
+   }
+
+  }
+
+
+  const groups={
+
+   r1:
+   normal.filter(
+    item=>
+    item.rarity==="r1"
+   ),
+
+   r2:
+   normal.filter(
+    item=>
+    item.rarity==="r2"
+   ),
+
+   r3:
+   normal.filter(
+    item=>
+    item.rarity==="r3"
+   ),
+
+   r4:
+   normal.filter(
+    item=>
+    item.rarity==="r4"
+   ),
+
+   r5:
+   rare
+
+  };
+
+
+  containers.push({
+
+   id:
+   crate.id,
+
+   name:
+   crate.name,
+
+   image:
+   imageOf(crate),
+
+   type:
+   stickerType
+   ?
+   "sticker"
+   :
+   "case",
+
+   price:
+   containerPrice(
+    crate,
+    stickerType
+    ?
+    "sticker"
+    :
+    "case"
+   ),
+
+   normal,
+
+   rare,
+
+   groups
+
+  });
+
+ }
+
+
+ containers.reverse();
+
+}
+
+
+/* ============================================================
+   CARD HTML
+============================================================ */
+
+function itemHTML(item){
+
+ return`
+
+  <div
+   class="
+    item
+    ${item.rarity}
+   ">
+
+
+   <div
+    class="item-img">
+
+    <img
+     src="${esc(item.image)}"
+     loading="lazy">
+
+   </div>
+
+
+   <div
+    class="weapon">
+
+    ${
+     item.stattrak
+     ?
+     '<span class="st">StatTrak™</span> '
+     :
+     ""
+    }
+
+    ${esc(item.weapon)}
+
+   </div>
+
+
+   <div
+    class="skin">
+
+    ${esc(item.skin)}
+
+   </div>
+
+
+   ${
+    item.price!=null
+    ?
+    `
+
+     <div
+      class="item-foot">
+
+      ${
+       item.wear
+       ?
+       (
+        item.wear.short+
+        " · "+
+        item.float.toFixed(3)+
+        "<br>"
+       )
+       :
+       ""
+      }
+
+      <span
+       class="price">
+
+       ${money(item.price)}
+
+      </span>
+
+     </div>
+
+    `
+    :
+    ""
+   }
+
+
+  </div>
+ `;
+
+}
+
+
+function secretHTML(){
+
+ return`
+
+  <div
+   class="
+    item
+    r5
+    secret-item
+   ">
+
+
+   <div
+    class="secret-image-box">
+
+    <img
+     class="secret-image"
+     src="${SECRET_IMAGE}">
+
+   </div>
+
+
+   <div
+    class="secret-name">
+
+    ★ RARE SPECIAL ITEM
+
+   </div>
+
+
+   <div
+    class="secret-sub">
+
+    Секретный предмет
+
+   </div>
+
+
+  </div>
+ `;
+
+}
+
+
+/* ============================================================
+   CASE LIST
+============================================================ */
+
+function renderCases(){
+
+ const query=
+
+ $("search")
+ .value
+ .trim()
+ .toLowerCase();
+
+
+ const list=
+
+ containers.filter(
+  item=>
+
+  !query
+
+  ||
+
+  item.name
+  .toLowerCase()
+  .includes(
+   query
+  )
+ );
+
+
+ $("caseCount")
+ .textContent=
+
+ "Контейнеров: "+
+ list.length;
+
+
+ $("caseGrid")
+ .innerHTML=
+
+ list.map(
+  (
+   item,
+   index
+  )=>`
+
+   <div
+    class="case"
+    data-index="${index}">
+
+
+    <div
+     class="case-img">
+
+     <img
+      src="${esc(item.image)}"
+      loading="lazy">
+
+    </div>
+
+
+    <div
+     class="case-name">
+
+     ${esc(item.name)}
+
+    </div>
+
+
+    <div
+     class="case-info">
+
+     ${
+      item.type===
+      "sticker"
+      ?
+      "Sticker Pack · красный 0.64%"
+      :
+      (
+       item.normal.length+
+       " предметов"+
+       (
+        item.rare.length
+        ?
+        " · ★"
+        :
+        ""
+       )
+      )
+     }
+
+    </div>
+
+
+    <div
+     class="case-price">
+
+     ${money(item.price)}
+
+    </div>
+
+
+   </div>
+
+  `
+ ).join("");
+
+
+ $("caseGrid")
+ .querySelectorAll(
+  ".case"
+ )
+ .forEach(
+  element=>{
+
+   element.onclick=()=>{
+
+    selectCase(
+     list[
+      +element.dataset.index
+     ]
+    );
+
+   };
+
+  }
+ );
+
+}
+
+
+$("search")
+.oninput=
+renderCases;
+
+
+/* ============================================================
+   SELECT
+============================================================ */
+
+function selectCase(item){
+
+ currentCase=
+ item;
+
+
+ $("caseSelect")
+ .hidden=
+ true;
+
+
+ $("caseOpen")
+ .hidden=
+ false;
+
+
+ $("caseImage")
+ .src=
+ item.image;
+
+
+ $("caseName")
+ .textContent=
+ item.name;
+
+
+ $("caseMeta")
+ .textContent=
+
+ (
+  item.type===
+  "sticker"
+  ?
+  "Sticker Pack"
+  :
+  "Weapon Case"
+ )
+
+ +
+
+ " · "
+
+ +
+
+ money(
+  item.price
+ );
+
+
+ renderOdds();
+
+ renderContents();
+
+ idleStrip();
+
+ update();
+
+
+ window.scrollTo({
+
+  top:0,
+
+  behavior:
+  "smooth"
+
+ });
+
+}
+
+
+$("backBtn")
+.onclick=()=>{
+
+ if(spinning)
+  return;
+
+
+ $("caseOpen")
+ .hidden=
+ true;
+
+
+ $("caseSelect")
+ .hidden=
+ false;
+
+
+ currentCase=
+ null;
+
+};
+
+
+/* ============================================================
+   ODDS DISPLAY
+============================================================ */
+
+function renderOdds(){
+
+ const odds=
+
+ currentCase.type===
+ "sticker"
+
+ ?
+
+ STICKER_ODDS
+
+ :
+
+ WEAPON_ODDS;
+
+
+ $("odds")
+ .innerHTML=
+
+ odds.map(
+  rarity=>`
+
+   <div
+    class="
+     odd
+     ${rarity.cls}
+    ">
+
+    <b>
+
+     ${
+      (
+       rarity.chance*
+       100
+      )
+      .toFixed(2)
+     }%
+
+    </b>
+
+    ${rarity.name}
+
+    <div
+     class="odd-line">
+    </div>
+
+   </div>
+
+  `
+ ).join("");
+
+}
+
+
+/* ============================================================
+   CONTENTS
+============================================================ */
+
+function renderContents(){
+
+ const normal=[
+
+  ...currentCase.groups.r4,
+
+  ...currentCase.groups.r3,
+
+  ...currentCase.groups.r2,
+
+  ...currentCase.groups.r1
+
+ ];
+
+
+ $("contentCount")
+ .textContent=
+
+ "("+
+ normal.length+
+ (
+  currentCase
+  .groups.r5
+  .length
+  ?
+  " + ★"
+  :
+  ""
+ )
+ +")";
+
+
+ $("contents")
+ .innerHTML=
+
+ (
+  currentCase
+  .groups.r5
+  .length
+  &&
+  currentCase.type===
+  "case"
+
+  ?
+  secretHTML()
+
+  :
+  ""
+ )
+
+ +
+
+ normal
+ .map(
+  item=>
+  itemHTML({
+
+   ...item,
+
+   price:null
+
+  })
+ )
+ .join("");
+
+}
+
+
+/* ============================================================
+   RNG
+============================================================ */
+
+function weightedRoll(
+ odds
+){
+
+ const value=
+ Math.random();
+
+
+ let total=0;
+
+
+ for(
+  const rarity
+  of odds
+ ){
+
+  total+=
+  rarity.chance;
+
+
+  if(
+   value<
+   total
+  ){
+
+   return rarity.cls;
+
+  }
+
+ }
+
+
+ return odds[0].cls;
+
+}
+
+
+function chooseAvailable(
+ container,
+ desired
+){
+
+ /*
+   Sticker r4 has a special global fallback.
+ */
+
+ if(
+  container.type==="sticker"
+  &&
+  desired==="r4"
+ ){
+
+  if(
+   container.groups.r4
+   ?.length
+  ){
+
+   return{
+    rarity:"r4",
+    pool:
+    container.groups.r4
+   };
+
+  }
+
+
+  if(
+   redStickerPool.length
+  ){
+
+   return{
+    rarity:"r4",
+    pool:
+    redStickerPool
+   };
+
+  }
+
+ }
+
+
+ if(
+  container.groups[
+   desired
+  ]?.length
+ ){
+
+  return{
+
+   rarity:
+   desired,
+
+   pool:
+   container.groups[
+    desired
+   ]
+
+  };
+
+ }
+
+
+ const order=[
+
+  "r1",
+  "r2",
+  "r3",
+  "r4",
+  "r5"
+
+ ];
+
+
+ const start=
+ order.indexOf(
+  desired
+ );
+
+
+ for(
+  let distance=1;
+  distance<5;
+  distance++
+ ){
+
+  const down=
+  order[
+   start-distance
+  ];
+
+
+  if(
+   down &&
+   container
+   .groups[down]
+   ?.length
+  ){
+
+   return{
+
+    rarity:
+    down,
+
+    pool:
+    container
+    .groups[down]
+
+   };
+
+  }
+
+
+  const up=
+  order[
+   start+distance
+  ];
+
+
+  if(
+   up &&
+   container
+   .groups[up]
+   ?.length
+  ){
+
+   return{
+
+    rarity:
+    up,
+
+    pool:
+    container
+    .groups[up]
+
+   };
+
+  }
+
+ }
+
+
+ return null;
+
+}
+
+
+function rollContainer(){
+
+ const desired=
+
+ weightedRoll(
+
+  currentCase.type===
+  "sticker"
+
+  ?
+
+  STICKER_ODDS
+
+  :
+
+  WEAPON_ODDS
+
+ );
+
+
+ const selection=
+
+ chooseAvailable(
+  currentCase,
+  desired
+ );
+
+
+ const rarity=
+ selection.rarity;
+
+
+ const source=
+ random(
+  selection.pool
+ );
+
+
+ if(
+  currentCase.type===
+  "sticker"
+ ){
+
+  return{
+
+   uid:
+   uuid(),
+
+   weapon:
+   "Sticker",
+
+   skin:
+   source.skin,
+
+   image:
+   source.image,
+
+   rarity,
+
+   float:0,
+
+   wear:{
+    name:"Sticker",
+    short:""
+   },
+
+   stattrak:false,
+
+   price:
+   Math.max(
+    5,
+    templatePrice(
+     source
+    )
+   )
+
+  };
+
+ }
+
+
+ const float=
+
+ source.min
+
+ +
+
+ Math.random()
+
+ *
+
+ Math.max(
+  .00001,
+  source.max-
+  source.min
+ );
+
+
+ const wear=
+ wearOf(
+  float
+ );
+
+
+ const stattrak=
+
+ !/glove|wrap/i
+ .test(
+  source.weapon
+ )
+
+ &&
+
+ Math.random()<
+ .10;
+
+
+ let price=
+
+ templatePrice(
+  source
+ )
+
+ *
+
+ wear.mult
+
+ *
+
+ (
+  stattrak
+  ?
+  1.55
+  :
+  1
+ );
+
+
+ return{
+
+  uid:
+  uuid(),
+
+  weapon:
+  source.weapon,
+
+  skin:
+  source.skin,
+
+  image:
+  source.image,
+
+  rarity,
+
+  float,
+
+  wear,
+
+  stattrak,
+
+  price:
+  Math.max(
+   1,
+   Math.round(
+    price
+   )
+  )
+
+ };
+
+}
+
+
+function rouletteHTML(
+ item
+){
+
+ if(
+  item.rarity===
+  "r5"
+  &&
+  currentCase.type===
+  "case"
+ ){
+
+  return secretHTML();
+
+ }
+
+
+ return itemHTML(
+  item
+ );
+
+}
+
+
+function idleStrip(){
+
+ if(
+  !currentCase
+ )
+  return;
+
+
+ $("strip")
+ .style
+ .transition=
+ "none";
+
+
+ $("strip")
+ .style
+ .transform=
+ "translateX(0)";
+
+
+ $("strip")
+ .innerHTML=
+
+ Array.from(
+  {
+   length:45
+  },
+  rollContainer
+ )
+
+ .map(
+  rouletteHTML
+ )
+
+ .join("");
+
+}
+
+
+/* ============================================================
+   OPEN
+============================================================ */
+
+function updateOpenButton(){
+
+ if(
+  !currentCase
+ )
+  return;
+
+
+ const count=
+
+ +$("amount")
+ .value;
+
+
+ const total=
+
+ currentCase.price*
+ count;
+
+
+ $("openBtn")
+ .textContent=
+
+ "ОТКРЫТЬ ЗА "
+
+ +
+
+ money(
+  total
+ );
+
+
+ $("openBtn")
+ .disabled=
+
+ spinning
+
+ ||
+
+ state.balance<
+ total;
+
+}
+
+
+$("amount")
+.onchange=
+updateOpenButton;
+
+
+$("openBtn")
+.onclick=()=>{
+
+ if(
+  spinning
+  ||
+  !currentCase
+ )
+  return;
+
+
+ const count=
+
+ +$("amount")
+ .value;
+
+
+ const total=
+
+ currentCase.price*
+ count;
+
+
+ if(
+  state.balance<
+  total
+ ){
+
+  notify(
+   "Недостаточно CR"
+  );
+
+  return;
+
+ }
+
+
+ state.balance-=
+ total;
+
+
+ state.opened+=
+ count;
+
+
+ update();
+
+
+ if(
+  count>1
+  ||
+  $("fast").checked
+ ){
+
+  const drops=[];
+
+
+  for(
+   let i=0;
+   i<count;
+   i++
+  ){
+
+   const item=
+   rollContainer();
+
+
+   state.inventory
+   .push(
+    item
+   );
+
+
+   drops.push(
+    item
+   );
+
+  }
+
+
+  save();
+
+  update();
+
+
+  showMulti(
+   drops
+  );
+
+
+  return;
+
+ }
+
+
+ spinning=
+ true;
+
+
+ updateOpenButton();
+
+
+ const winner=
+ rollContainer();
+
+
+ spinSingle(
+
+  winner,
+
+  ()=>{
+
+   state.inventory
+   .push(
+    winner
+   );
+
+
+   spinning=
+   false;
+
+
+   save();
+
+   update();
+
+
+   showResult(
+    winner
+   );
+
+  }
+
+ );
+
+};
+
+
+/* ============================================================
+   SINGLE SPIN
+============================================================ */
+
+function spinSingle(
+ winner,
+ done
+){
+
+ const CARD=162;
+
+ const INDEX=36;
+
+ const TOTAL=47;
+
+
+ const list=[];
+
+
+ for(
+  let i=0;
+  i<TOTAL;
+  i++
+ ){
+
+  list.push(
+   i===INDEX
+   ?
+   winner
+   :
+   rollContainer()
+  );
+
+ }
+
+
+ $("strip")
+ .style
+ .transition=
+ "none";
+
+
+ $("strip")
+ .style
+ .transform=
+ "translateX(0)";
+
+
+ $("strip")
+ .innerHTML=
+
+ list
+ .map(
+  rouletteHTML
+ )
+ .join("");
+
+
+ const viewport=
+
+ $("strip")
+ .parentElement
+ .clientWidth;
+
+
+ const target=
+
+ -(
+  INDEX*
+  CARD
+
+  +
+
+  CARD/2
+
+  -
+
+  viewport/2
+
+  +
+
+  (
+   Math.random()*60-
+   30
+  )
+ );
+
+
+ requestAnimationFrame(
+  ()=>requestAnimationFrame(
+   ()=>{
+
+    $("strip")
+    .style
+    .transition=
+
+    "transform 6s cubic-bezier(.08,.72,.11,1)";
+
+
+    $("strip")
+    .style
+    .transform=
+
+    `translateX(${target}px)`;
+
+   }
+  )
+ );
+
+
+ $("strip")
+ .addEventListener(
+
+  "transitionend",
+
+  function ended(){
+
+   $("strip")
+   .removeEventListener(
+    "transitionend",
+    ended
+   );
+
+
+   if(
+    winner.rarity===
+    "r5"
+    &&
+    currentCase.type===
+    "case"
+   ){
+
+    const card=
+
+    $("strip")
+    .children[
+     INDEX
+    ];
+
+
+    if(card){
+
+     const temp=
+     document.createElement(
+      "div"
+     );
+
+
+     temp.innerHTML=
+     itemHTML(
+      winner
+     );
+
+
+     card.replaceWith(
+      temp
+      .firstElementChild
+     );
+
+    }
+
+   }
+
+
+   setTimeout(
+    done,
+    350
+   );
+
+  },
+
+  {
+   once:true
+  }
+
+ );
+
+}
+
+
+/* ============================================================
+   MULTI
+============================================================ */
+
+function showMulti(
+ list
+){
+
+ const total=
+
+ list.reduce(
+  (
+   sum,
+   item
+  )=>
+  sum+
+  item.price,
+  0
+ );
+
+
+ $("modalBody")
+ .innerHTML=`
+
+  <div
+   class="multi-reveal">
+
+
+   <div
+    class="multi-title">
+
+    ОТКРЫТИЕ
+    ×${list.length}
+
+   </div>
+
+
+   <div
+    class="reveal-grid"
+    id="revealGrid">
+
+    ${
+     list.map(
+      item=>`
+
+       <div
+        class="
+         reveal-card
+         ${item.rarity}
+        ">
+
+        ${itemHTML(item)}
+
+       </div>
+
+      `
+     ).join("")
+    }
+
+   </div>
+
+
+   <div
+    id="multiTotal"
+    style="
+     text-align:center;
+     margin-top:15px;
+     color:#d6a442;
+     font-size:20px;
+     font-weight:900
+    ">
+
+    ...
+
+   </div>
+
+
+   <div
+    style="
+     text-align:center;
+     margin-top:13px
+    ">
+
+    <button
+     id="multiDone"
+     class="btn green"
+     disabled>
+
+     ЗАБРАТЬ
+
+    </button>
+
+   </div>
+
+
+  </div>
+ `;
+
+
+ $("modal")
+ .classList
+ .add(
+  "open"
+ );
+
+
+ const cards=[
+
+  ...$("revealGrid")
+  .children
+
+ ];
+
+
+ cards.forEach(
+  (
+   card,
+   index
+  )=>{
+
+   setTimeout(
+    ()=>{
+
+     card
+     .classList
+     .add(
+      "revealed"
+     );
+
+
+     if(
+      [
+       "r3",
+       "r4",
+       "r5"
+      ]
+      .includes(
+       list[index]
+       .rarity
+      )
+     ){
+
+      card
+      .classList
+      .add(
+       "rare-flash"
+      );
+
+     }
+
+
+     if(
+      index===
+      cards.length-1
+     ){
+
+      setTimeout(
+       ()=>{
+
+        $("multiTotal")
+        .textContent=
+
+        "ПОЛУЧЕНО: "
+
+        +
+
+        money(
+         total
+        );
+
+
+        $("multiDone")
+        .disabled=
+        false;
+
+       },
+       300
+      );
+
+     }
+
+    },
+    index*130
+   );
+
+  }
+ );
+
+
+ $("multiDone")
+ .onclick=()=>{
+
+  $("modal")
+  .classList
+  .remove(
+   "open"
+  );
+
+
+  idleStrip();
+
+ };
+
+}
+
+
+/* ============================================================
+   RESULT
+============================================================ */
+
+function showResult(
+ item
+){
+
+ $("modalBody")
+ .innerHTML=`
+
+  <div
+   class="
+    result
+    ${item.rarity}
+   ">
+
+
+   <div
+    class="result-rarity">
+
+    ${
+     item.rarity===
+     "r5"
+     ?
+     "★ RARE SPECIAL ITEM"
+     :
+     "ПРЕДМЕТ ПОЛУЧЕН"
+    }
+
+   </div>
+
+
+   <img
+    src="${esc(item.image)}">
+
+
+   <h3>
+
+    ${esc(item.weapon)}
+
+    |
+
+    ${esc(item.skin)}
+
+   </h3>
+
+
+   <div
+    class="muted">
+
+    ${
+     item.weapon===
+     "Sticker"
+     ?
+     "Sticker"
+     :
+     (
+      item.wear.name+
+      " · Float "+
+      item.float
+      .toFixed(8)
+     )
+    }
+
+   </div>
+
+
+   <div
+    class="result-price">
+
+    ${money(item.price)}
+
+   </div>
+
+
+   <div
+    class="result-buttons">
+
+
+    <button
+     id="resultKeep"
+     class="btn green">
+
+     ПРОДОЛЖИТЬ
+
+    </button>
+
+
+    <button
+     id="resultInspect"
+     class="btn gold">
+
+     ОСМОТРЕТЬ
+
+    </button>
+
+
+    <button
+     id="resultSell"
+     class="btn">
+
+     ПРОДАТЬ
+
+    </button>
+
+
+   </div>
+
+
+  </div>
+ `;
+
+
+ $("modal")
+ .classList
+ .add(
+  "open"
+ );
+
+
+ $("resultKeep")
+ .onclick=()=>{
+
+  $("modal")
+  .classList
+  .remove(
+   "open"
+  );
+
+
+  if(
+   currentCase
+  ){
+
+   idleStrip();
+
+  }
+
+ };
+
+
+ $("resultInspect")
+ .onclick=()=>{
+
+  $("modal")
+  .classList
+  .remove(
+   "open"
+  );
+
+
+  inspectItem(
+   item
+  );
+
+ };
+
+
+ $("resultSell")
+ .onclick=()=>{
+
+  const index=
+
+  state.inventory
+  .findIndex(
+   x=>
+   x.uid===
+   item.uid
+  );
+
+
+  if(
+   index>=0
+  ){
+
+   state.balance+=
+
+   state.inventory[
+    index
+   ]
+   .price;
+
+
+   state.inventory
+   .splice(
+    index,
+    1
+   );
+
+  }
+
+
+  $("modal")
+  .classList
+  .remove(
+   "open"
+  );
+
+
+  update();
+
+ };
+
+}
+
+
+/* ============================================================
+   CLICKER
+============================================================ */
+
+function clickUpgradeCost(){
+
+ return Math.round(
+
+  250*
+
+  Math.pow(
+   1.55,
+   state.clickLevel-
+   1
+  )
+
+ );
+
+}
+
+
+$("coin")
+.onclick=
+event=>{
+
+ const now=
+ Date.now();
+
+
+ state.combo=
+
+ now-
+ state.lastClick<
+ 650
+
+ ?
+
+ Math.min(
+  20,
+  state.combo+
+  1
+ )
+
+ :
+
+ 1;
+
+
+ state.lastClick=
+ now;
+
+
+ state.clicks++;
+
+
+ const multiplier=
+
+ 1+
+
+ Math.min(
+  state.combo,
+  20
+ )*.025;
+
+
+ const critical=
+
+ Math.random()<
+ .05;
+
+
+ const gain=
+
+ Math.max(
+  1,
+
+  Math.round(
+
+   state.clickLevel*
+
+   multiplier*
+
+   (
+    critical
+    ?
+    5
+    :
+    1
+   )
+
+  )
+ );
+
+
+ state.balance+=
+ gain;
+
+
+ const floating=
+
+ document.createElement(
+  "div"
+ );
+
+
+ floating.className=
+ "click-float";
+
+
+ floating.textContent=
+
+ (
+  critical
+  ?
+  "КРИТ! +"
+  :
+  "+"
+ )
+
+ +
+
+ gain;
+
+
+ floating.style.left=
+
+ (
+  event.offsetX+
+  20
+ )
+ +"px";
+
+
+ floating.style.top=
+
+ (
+  event.offsetY+
+  60
+ )
+ +"px";
+
+
+ $("clickZone")
+ .appendChild(
+  floating
+ );
+
+
+ setTimeout(
+  ()=>floating.remove(),
+  850
+ );
+
+
+ update();
+
+};
+
+
+$("buyClick")
+.onclick=()=>{
+
+ const cost=
+ clickUpgradeCost();
+
+
+ if(
+  state.balance<
+  cost
+ ){
+
+  notify(
+   "Не хватает CR"
+  );
+
+  return;
+
+ }
+
+
+ state.balance-=
+ cost;
+
+
+ state.clickLevel++;
+
+
+ update();
+
+};
+
+
+/* ============================================================
+   UPGRADER
+============================================================ */
+
+function cheapestTemplate(){
+
+ return[
+  ...skins
+ ]
+ .sort(
+  (
+   a,
+   b
+  )=>
+
+  templatePrice(a)-
+
+  templatePrice(b)
+
+ )[0];
+
+}
+
+
+$("freeStarter")
+.onclick=()=>{
+
+ if(
+  state.inventory
+  .length
+ ){
+
+  notify(
+   "Доступно только при пустом инвентаре"
+  );
+
+  return;
+
+ }
+
+
+ const source=
+ cheapestTemplate();
+
+
+ const item={
+
+  uid:
+  uuid(),
+
+  weapon:
+  source.weapon,
+
+  skin:
+  source.skin,
+
+  image:
+  source.image,
+
+  rarity:"r1",
+
+  float:.30,
+
+  wear:
+  WEARS[2],
+
+  stattrak:false,
+
+  price:1
+
+ };
+
+
+ state.inventory
+ .push(
+  item
+ );
+
+
+ save();
+
+ update();
+
+ renderUpgrader();
+
+};
+
+
+function upgradeChance(){
+
+ if(
+  !upSource
+  ||
+  !upTarget
+ )
+  return 0;
+
+
+ return Math.max(
+
+  1,
+
+  Math.min(
+
+   95,
+
+   (
+    upSource.price/
+    upTarget.price
+   )*90
+
+  )
+
+ );
+
+}
+
+
+function renderUpgrader(){
+
+ const inventory=[
+
+  ...state.inventory
+
+ ]
+ .sort(
+  (
+   a,
+   b
+  )=>
+  a.price-
+  b.price
+ );
+
+
+ $("upgradeInventory")
+ .innerHTML=
+
+ inventory.length
+
+ ?
+
+ inventory.map(
+  item=>`
+
+   <div
+    class="
+     pick-wrap
+     ${
+      upSource?.uid===
+      item.uid
+      ?
+      "selected"
+      :
+      ""
+     }
+    "
+    data-id="${item.uid}">
+
+    ${itemHTML(item)}
+
+    <button
+     class="pick-button">
+
+     ВЫБРАТЬ
+
+    </button>
+
+   </div>
+
+  `
+ ).join("")
+
+ :
+
+ '<div class="empty">Нет предметов</div>';
+
+
+ $("upgradeInventory")
+ .querySelectorAll(
+  ".pick-wrap"
+ )
+ .forEach(
+  element=>{
+
+   element.onclick=()=>{
+
+    upSource=
+
+    state.inventory
+    .find(
+     item=>
+     item.uid===
+     element.dataset.id
+    );
+
+
+    upTarget=
+    null;
+
+
+    renderUpgrader();
+
+   };
+
+  }
+ );
+
+
+ let targets=
+
+ skins.map(
+  source=>({
+
+   source,
+
+   price:
+   templatePrice(
+    source
+   )
+
+  })
+ )
+
+ .filter(
+  target=>
+
+  !upSource
+
+  ||
+
+  target.price>
+  upSource.price*
+  1.05
+ )
+
+ .sort(
+  (
+   a,
+   b
+  )=>
+  a.price-
+  b.price
+ )
+
+ .slice(
+  0,
+  180
+ );
+
+
+ $("upgradeTargets")
+ .innerHTML=
+
+ targets.map(
+  (
+   target,
+   index
+  )=>`
+
+   <div
+    class="
+     pick-wrap
+     ${
+      upTarget?.source.id===
+      target.source.id
+      ?
+      "selected"
+      :
+      ""
+     }
+    "
+    data-index="${index}">
+
+    <div
+     class="
+      item
+      ${target.source.rarity}
+     ">
+
+     <div
+      class="item-img">
+
+      <img
+       src="${esc(target.source.image)}"
+       loading="lazy">
+
+     </div>
+
+     <div
+      class="weapon">
+
+      ${esc(target.source.weapon)}
+
+     </div>
+
+     <div
+      class="skin">
+
+      ${esc(target.source.skin)}
+
+     </div>
+
+     <div
+      class="item-foot">
+
+      <span
+       class="price">
+
+       ${money(target.price)}
+
+      </span>
+
+     </div>
+
+    </div>
+
+    <button
+     class="pick-button">
+
+     ЦЕЛЬ
+
+    </button>
+
+   </div>
+
+  `
+ ).join("");
+
+
+ $("upgradeTargets")
+ .querySelectorAll(
+  ".pick-wrap"
+ )
+ .forEach(
+  element=>{
+
+   element.onclick=()=>{
+
+    upTarget=
+
+    targets[
+     +element.dataset.index
+    ];
+
+
+    renderUpgrader();
+
+   };
+
+  }
+ );
+
+
+ $("upSource")
+ .innerHTML=
+
+ upSource
+ ?
+ itemHTML(
+  upSource
+ )
+ :
+ '<div class="muted">ИСХОДНЫЙ ПРЕДМЕТ</div>';
+
+
+ $("upTarget")
+ .innerHTML=
+
+ upTarget
+ ?
+
+ `
+
+  <img
+   src="${esc(upTarget.source.image)}">
+
+  <b>
+
+   ${esc(upTarget.source.weapon)}
+
+   |
+
+   ${esc(upTarget.source.skin)}
+
+  </b>
+
+  <span
+   class="price">
+
+   ${money(upTarget.price)}
+
+  </span>
+
+ `
+
+ :
+
+ '<div class="muted">ЦЕЛЕВОЙ ПРЕДМЕТ</div>';
+
+
+ const chance=
+ upgradeChance();
+
+
+ $("upgradeChance")
+ .textContent=
+
+ chance.toFixed(2)+
+ "%";
+
+
+ $("upWheel")
+ .style
+ .setProperty(
+  "--chance",
+  chance
+ );
+
+
+ $("upgradeBtn")
+ .disabled=
+
+ !upSource
+
+ ||
+
+ !upTarget
+
+ ||
+
+ upAnimating;
+
+}
+
+
+/* pointer-only animation */
+
+$("upgradeBtn")
+.onclick=()=>{
+
+ if(
+  !upSource
+  ||
+  !upTarget
+  ||
+  upAnimating
+ )
+  return;
+
+
+ const chance=
+ upgradeChance();
+
+
+ const success=
+
+ Math.random()*100<
+ chance;
+
+
+ upAnimating=
+ true;
+
+
+ $("upgradeBtn")
+ .disabled=
+ true;
+
+
+ $("upgradeStatus")
+ .textContent=
+ "UPGRADING...";
+
+
+ const pointer=
+ $("upPointer");
+
+
+ let finalPercent;
+
+
+ if(success){
+
+  finalPercent=
+
+  .3+
+
+  Math.random()*
+
+  Math.max(
+   .1,
+   chance-
+   .6
+  );
+
+ }
+ else{
+
+  const start=
+
+  Math.min(
+   99.3,
+   chance+
+   .4
+  );
+
+
+  finalPercent=
+
+  start+
+
+  Math.random()*
+
+  Math.max(
+   .1,
+   99.6-
+   start
+  );
+
+ }
+
+
+ const rotations=
+
+ 6+
+
+ Math.floor(
+  Math.random()*3
+ );
+
+
+ const degrees=
+
+ rotations*
+ 360
+
+ +
+
+ finalPercent*
+ 3.6;
+
+
+ pointer.style.transition=
+ "none";
+
+
+ pointer.style.transform=
+ "rotate(0deg)";
+
+
+ void pointer.offsetWidth;
+
+
+ pointer.style.transition=
+
+ "transform 5.2s cubic-bezier(.08,.72,.10,1)";
+
+
+ pointer.style.transform=
+
+ `rotate(${degrees}deg)`;
+
+
+ tone(
+  135,
+  .18,
+  .04,
+  "sine"
+ );
+
+
+ setTimeout(
+  ()=>{
+
+   const index=
+
+   state.inventory
+   .findIndex(
+    item=>
+    item.uid===
+    upSource.uid
+   );
+
+
+   if(
+    index>=0
+   ){
+
+    state.inventory
+    .splice(
+     index,
+     1
+    );
+
+   }
+
+
+   const panel=
+   $("upgraderPanel");
+
+
+   panel.classList
+   .remove(
+    "success",
+    "fail"
+   );
+
+
+   if(success){
+
+    const source=
+    upTarget.source;
+
+
+    const float=
+
+    source.min+
+
+    Math.random()*
+
+    Math.max(
+     .001,
+     source.max-
+     source.min
+    );
+
+
+    const wear=
+    wearOf(
+     float
+    );
+
+
+    state.inventory
+    .push({
+
+     uid:
+     uuid(),
+
+     weapon:
+     source.weapon,
+
+     skin:
+     source.skin,
+
+     image:
+     source.image,
+
+     rarity:
+     source.rarity,
+
+     float,
+
+     wear,
+
+     stattrak:false,
+
+     price:
+     Math.max(
+      1,
+
+      Math.round(
+       upTarget.price*
+       wear.mult
+      )
+     )
+
+    });
+
+
+    $("upgradeStatus")
+    .textContent=
+    "SUCCESS";
+
+
+    $("upgradeStatus")
+    .style
+    .color=
+    "#9acb5c";
+
+
+    panel.classList
+    .add(
+     "success"
+    );
+
+
+    tone(
+     440,
+     .3,
+     .06
+    );
+
+
+    tone(
+     660,
+     .4,
+     .05,
+     "triangle",
+     .08
+    );
+
+   }
+   else{
+
+    $("upgradeStatus")
+    .textContent=
+    "FAILED";
+
+
+    $("upgradeStatus")
+    .style
+    .color=
+    "#e76368";
+
+
+    panel.classList
+    .add(
+     "fail"
+    );
+
+
+    tone(
+     140,
+     .35,
+     .06,
+     "sine"
+    );
+
+   }
+
+
+   upSource=
+   null;
+
+
+   upTarget=
+   null;
+
+
+   upAnimating=
+   false;
+
+
+   save();
+
+   update();
+
+
+   setTimeout(
+    ()=>{
+
+     pointer.style.transition=
+
+     "transform .45s ease";
+
+
+     pointer.style.transform=
+
+     "rotate(0deg)";
+
+
+     renderUpgrader();
+
+    },
+    900
+   );
+
+  },
+  5350
+ );
+
+};
+
+
+/* ============================================================
+   CRAFT
+============================================================ */
+
+function renderCraft(){
+
+ const list=
+ state.inventory;
+
+
+ $("craftInventory")
+ .innerHTML=
+
+ list.length
+
+ ?
+
+ list.map(
+  item=>`
+
+   <div
+    class="
+     pick-wrap
+     ${
+      craftIds.has(
+       item.uid
+      )
+      ?
+      "selected"
+      :
+      ""
+     }
+    "
+    data-id="${item.uid}">
+
+    ${itemHTML(item)}
+
+    <button
+     class="pick-button">
+
+     ${
+      craftIds.has(
+       item.uid
+      )
+      ?
+      "УБРАТЬ"
+      :
+      "ДОБАВИТЬ"
+     }
+
+    </button>
+
+   </div>
+
+  `
+ ).join("")
+
+ :
+
+ '<div class="empty">Нет предметов</div>';
+
+
+ $("craftInventory")
+ .querySelectorAll(
+  ".pick-wrap"
+ )
+ .forEach(
+  element=>{
+
+   element.onclick=()=>{
+
+    const id=
+    element.dataset.id;
+
+
+    if(
+     craftIds.has(
+      id
+     )
+    ){
+
+     craftIds.delete(
+      id
+     );
+
+    }
+    else{
+
+     if(
+      craftIds.size>=10
+     ){
+
+      notify(
+       "Максимум 10"
+      );
+
+      return;
+
+     }
+
+
+     craftIds.add(
+      id
+     );
+
+    }
+
+
+    renderCraft();
+
+   };
+
+  }
+ );
+
+
+ const selected=
+
+ state.inventory
+ .filter(
+  item=>
+  craftIds.has(
+   item.uid
+  )
+ );
+
+
+ $("craftSelected")
+ .innerHTML=
+
+ selected.map(
+  item=>`
+
+   <div
+    class="
+     craft-mini
+     ${item.rarity}
+    ">
+
+    <img
+     src="${esc(item.image)}">
+
+    ${esc(item.weapon)}
+
+    <br>
+
+    <span
+     class="price">
+
+     ${money(item.price)}
+
+    </span>
+
+   </div>
+
+  `
+ ).join("");
+
+
+ const value=
+
+ selected.reduce(
+  (
+   sum,
+   item
+  )=>
+  sum+
+  item.price,
+  0
+ );
+
+
+ $("craftPreview")
+ .innerHTML=
+
+ selected.length>=3
+
+ ?
+
+ `
+
+  <b>
+   БЮДЖЕТ
+  </b>
+
+  <strong
+   style="
+    color:#e3ad43;
+    font-size:24px;
+    margin:10px
+   ">
+
+   ${money(value*.82)}
+
+  </strong>
+
+ `
+
+ :
+
+ '<div class="muted">Выбери минимум 3 предмета</div>';
+
+
+ $("craftBtn")
+ .disabled=
+
+ selected.length<
+ 3;
+
+}
+
+
+$("craftBtn")
+.onclick=()=>{
+
+ const selected=
+
+ state.inventory
+ .filter(
+  item=>
+  craftIds.has(
+   item.uid
+  )
+ );
+
+
+ if(
+  selected.length<3
+ )
+  return;
+
+
+ const budget=
+
+ selected.reduce(
+  (
+   sum,
+   item
+  )=>
+  sum+
+  item.price,
+  0
+ )*.82;
+
+
+ let candidates=
+
+ skins.map(
+  source=>({
+
+   source,
+
+   price:
+   templatePrice(
+    source
+   )
+
+  })
+ )
+
+ .filter(
+  item=>
+
+  item.price>=
+  budget*.65
+
+  &&
+
+  item.price<=
+  budget*1.35
+ );
+
+
+ if(
+  !candidates.length
+ ){
+
+  candidates=
+
+  skins.map(
+   source=>({
+
+    source,
+
+    price:
+    templatePrice(
+     source
+    )
+
+   })
+  )
+
+  .sort(
+   (
+    a,
+    b
+   )=>
+
+   Math.abs(
+    a.price-
+    budget
+   )
+
+   -
+
+   Math.abs(
+    b.price-
+    budget
+   )
+  )
+
+  .slice(
+   0,
+   25
+  );
+
+ }
+
+
+ const chosen=
+ random(
+  candidates
+ );
+
+
+ const source=
+ chosen.source;
+
+
+ const float=
+
+ source.min+
+
+ Math.random()*
+
+ Math.max(
+  .001,
+  source.max-
+  source.min
+ );
+
+
+ const wear=
+ wearOf(
+  float
+ );
+
+
+ const result={
+
+  uid:
+  uuid(),
+
+  weapon:
+  source.weapon,
+
+  skin:
+  source.skin,
+
+  image:
+  source.image,
+
+  rarity:
+  source.rarity,
+
+  float,
+
+  wear,
+
+  stattrak:false,
+
+  price:
+  Math.max(
+   1,
+
+   Math.round(
+    chosen.price*
+    wear.mult
+   )
+  )
+
+ };
+
+
+ state.inventory=
+
+ state.inventory
+ .filter(
+  item=>
+  !craftIds.has(
+   item.uid
+  )
+ );
+
+
+ state.inventory
+ .push(
+  result
+ );
+
+
+ craftIds.clear();
+
+
+ save();
+
+ update();
+
+ renderCraft();
+
+ showResult(
+  result
+ );
+
+};
+
+
+/* ============================================================
+   SWAP
+============================================================ */
+
+function getSwapItems(){
+
+ const query=
+
+ $("swapSearch")
+ .value
+ .trim()
+ .toLowerCase();
+
+
+ const rarity=
+
+ $("swapRarity")
+ .value;
+
+
+ let budget=
+
+ Number(
+  $("swapBudget")
+  .value
+ );
+
+
+ if(
+  !Number.isFinite(
+   budget
+  )
+  ||
+  budget<=0
+ ){
+
+  budget=
+  state.balance;
+
+ }
+
+
+ budget=
+
+ Math.min(
+  budget,
+  state.balance
+ );
+
+
+ let items=
+
+ skins.map(
+  source=>({
+
+   source,
+
+   price:
+   templatePrice(
+    source
+   )
+
+  })
+ )
+
+ .filter(
+  item=>
+  item.price<=
+  budget
+ )
+
+ .filter(
+  item=>
+  !rarity
+  ||
+  item.source.rarity===
+  rarity
+ )
+
+ .filter(
+  item=>{
+
+   if(
+    !query
+   )
+    return true;
+
+
+   return(
+
+    item.source.weapon+
+    " "+
+    item.source.skin
+
+   )
+   .toLowerCase()
+   .includes(
+    query
+   );
+
+  }
+ );
+
+
+ items.sort(
+  $("swapSort").value===
+  "expensive"
+  ?
+  (
+   a,
+   b
+  )=>
+  b.price-
+  a.price
+  :
+  (
+   a,
+   b
+  )=>
+  a.price-
+  b.price
+ );
+
+
+ return items;
+
+}
+
+
+function renderSwap(){
+
+ $("swapBalance")
+ .textContent=
+ money(
+  state.balance
+ );
+
+
+ const all=
+ getSwapItems();
+
+
+ const list=
+
+ all.slice(
+  0,
+  250
+ );
+
+
+ $("swapCount")
+ .textContent=
+
+ "Найдено: "+
+ all.length;
+
+
+ $("swapGrid")
+ .innerHTML=
+
+ list.length
+
+ ?
+
+ list.map(
+  (
+   entry,
+   index
+  )=>`
+
+   <div
+    class="
+     shop-wrap
+     ${
+      entry.price>
+      state.balance
+      ?
+      "unaffordable"
+      :
+      ""
+     }
+    "
+    data-index="${index}">
+
+    <div
+     class="
+      item
+      ${entry.source.rarity}
+     ">
+
+     <div
+      class="item-img">
+
+      <img
+       src="${esc(entry.source.image)}"
+       loading="lazy">
+
+     </div>
+
+     <div
+      class="weapon">
+
+      ${esc(entry.source.weapon)}
+
+     </div>
+
+     <div
+      class="skin">
+
+      ${esc(entry.source.skin)}
+
+     </div>
+
+     <div
+      class="item-foot">
+
+      <span
+       class="price">
+
+       ${money(entry.price)}
+
+      </span>
+
+     </div>
+
+    </div>
+
+
+    <button
+     class="buy-button">
+
+     КУПИТЬ
+
+    </button>
+
+
+   </div>
+
+  `
+ ).join("")
+
+ :
+
+ '<div class="empty">Ничего не найдено</div>';
+
+
+ $("swapGrid")
+ .querySelectorAll(
+  ".shop-wrap"
+ )
+ .forEach(
+  element=>{
+
+   const entry=
+
+   list[
+    +element.dataset.index
+   ];
+
+
+   element
+   .querySelector(
+    ".buy-button"
+   )
+   .onclick=()=>{
+
+    if(
+     state.balance<
+     entry.price
+    ){
+
+     notify(
+      "Не хватает CR"
+     );
+
+     return;
+
+    }
+
+
+    state.balance-=
+    entry.price;
+
+
+    const source=
+    entry.source;
+
+
+    const float=
+
+    source.min+
+
+    Math.random()*
+
+    Math.max(
+     .001,
+     source.max-
+     source.min
+    );
+
+
+    state.inventory
+    .push({
+
+     uid:
+     uuid(),
+
+     weapon:
+     source.weapon,
+
+     skin:
+     source.skin,
+
+     image:
+     source.image,
+
+     rarity:
+     source.rarity,
+
+     float,
+
+     wear:
+     wearOf(
+      float
+     ),
+
+     stattrak:false,
+
+     price:
+     entry.price
+
+    });
+
+
+    save();
+
+    update();
+
+    renderSwap();
+
+
+    notify(
+     "Скин куплен"
+    );
+
+   };
+
+  }
+ );
+
+}
+
+
+$("swapSearch")
+.oninput=
+renderSwap;
+
+
+$("swapBudget")
+.oninput=
+renderSwap;
+
+
+$("swapRarity")
+.onchange=
+renderSwap;
+
+
+$("swapSort")
+.onchange=
+renderSwap;
+
+
+$("swapUseAll")
+.onclick=()=>{
+
+ $("swapBudget")
+ .value=
+ state.balance;
+
+
+ renderSwap();
+
+};
+
+
+/* ============================================================
+   INVENTORY
+============================================================ */
+
+function renderInventory(){
+
+ $("inventory")
+ .innerHTML=
+
+ state.inventory.length
+
+ ?
+
+ ""
+
+ :
+
+ '<div class="empty">Инвентарь пуст</div>';
+
+
+ state.inventory
+ .forEach(
+  (
+   item,
+   index
+  )=>{
+
+   const wrapper=
+
+   document.createElement(
+    "div"
+   );
+
+
+   wrapper.className=
+   "inv-wrap";
+
+
+   wrapper.innerHTML=
+
+   itemHTML(
+    item
+   )
+
+   +
+
+   `
+
+    <button
+     class="inspect-inv">
+
+     ОСМОТРЕТЬ
+
+    </button>
+
+
+    <button
+     class="sell">
+
+     ПРОДАТЬ
+     ${money(item.price)}
+
+    </button>
+
+   `;
+
+
+   wrapper
+   .querySelector(
+    ".inspect-inv"
+   )
+   .onclick=()=>{
+
+    inspectItem(
+     item
+    );
+
+   };
+
+
+   wrapper
+   .querySelector(
+    ".sell"
+   )
+   .onclick=()=>{
+
+    state.balance+=
+    item.price;
+
+
+    state.inventory
+    .splice(
+     index,
+     1
+    );
+
+
+    save();
+
+    update();
+
+    renderInventory();
+
+   };
+
+
+   $("inventory")
+   .appendChild(
+    wrapper
+   );
+
+  }
+ );
+
+}
+
+
+$("sortBtn")
+.onclick=()=>{
+
+ state.inventory
+ .sort(
+  (
+   a,
+   b
+  )=>
+  b.price-
+  a.price
+ );
+
+
+ save();
+
+ renderInventory();
+
+};
+
+
+$("sellAllBtn")
+.onclick=()=>{
+
+ if(
+  !state.inventory
+  .length
+ )
+  return;
+
+
+ if(
+  !confirm(
+   "Продать всё?"
+  )
+ )
+  return;
+
+
+ state.balance+=
+
+ state.inventory
+ .reduce(
+  (
+   sum,
+   item
+  )=>
+  sum+
+  item.price,
+  0
+ );
+
+
+ state.inventory=
+ [];
+
+
+ save();
+
+ update();
+
+ renderInventory();
+
+};
+
+
+/* ============================================================
+   INSPECT
+============================================================ */
+
+let inspectX=0;
+
+let inspectY=0;
+
+let inspectScale=1;
+
+let inspectDragging=false;
+
+let inspectLastX=0;
+
+let inspectLastY=0;
+
+
+function applyInspect(){
+
+ $("inspectWeapon")
+ .style
+ .transform=
+
+ `translate(
+   ${inspectX}px,
+   ${inspectY}px
+  )
+  scale(
+   ${inspectScale}
+  )`;
+
+}
+
+
+function inspectItem(
+ item
+){
+
+ inspectX=
+ 0;
+
+
+ inspectY=
+ 0;
+
+
+ inspectScale=
+ 1;
+
+
+ applyInspect();
+
+
+ $("inspectWeapon")
+ .src=
+ item.image;
+
+
+ $("inspectTitle")
+ .textContent=
+
+ (
+  item.stattrak
+  ?
+  "StatTrak™ "
+  :
+  ""
+ )
+
+ +
+
+ item.weapon
+
+ +
+
+ " | "
+
+ +
+
+ item.skin;
+
+
+ $("inspectMeta")
+ .textContent=
+
+ item.weapon===
+ "Sticker"
+
+ ?
+
+ "Sticker"
+
+ :
+
+ item.wear.name+
+ " · Float "+
+ item.float.toFixed(8);
+
+
+ $("inspectRarity")
+ .textContent=
+
+ item.rarity
+ .toUpperCase();
+
+
+ $("inspect")
+ .classList
+ .add(
+  "open"
+ );
+
+
+ document.body
+ .style
+ .overflow=
+ "hidden";
+
+}
+
+
+function closeInspect(){
+
+ $("inspect")
+ .classList
+ .remove(
+  "open"
+ );
+
+
+ document.body
+ .style
+ .overflow=
+ "";
+
+}
+
+
+$("inspectClose")
+.onclick=
+closeInspect;
+
+
+$("inspectReset")
+.onclick=()=>{
+
+ inspectX=0;
+
+ inspectY=0;
+
+ inspectScale=1;
+
+ applyInspect();
+
+};
+
+
+$("inspectStage")
+.onwheel=
+event=>{
+
+ event.preventDefault();
+
+
+ inspectScale=
+
+ Math.max(
+  .5,
+
+  Math.min(
+   4,
+
+   inspectScale+
+
+   (
+    event.deltaY<0
+    ?
+    .12
+    :
+    -.12
+   )
+  )
+ );
+
+
+ applyInspect();
+
+};
+
+
+$("inspectStage")
+.onpointerdown=
+event=>{
+
+ inspectDragging=
+ true;
+
+
+ inspectLastX=
+ event.clientX;
+
+
+ inspectLastY=
+ event.clientY;
+
+
+ $("inspectStage")
+ .setPointerCapture(
+  event.pointerId
+ );
+
+};
+
+
+$("inspectStage")
+.onpointermove=
+event=>{
+
+ if(
+  !inspectDragging
+ )
+  return;
+
+
+ inspectX+=
+
+ event.clientX-
+ inspectLastX;
+
+
+ inspectY+=
+
+ event.clientY-
+ inspectLastY;
+
+
+ inspectLastX=
+ event.clientX;
+
+
+ inspectLastY=
+ event.clientY;
+
+
+ applyInspect();
+
+};
+
+
+$("inspectStage")
+.onpointerup=()=>{
+
+ inspectDragging=
+ false;
+
+};
+
+
+document
+.addEventListener(
+ "keydown",
+ event=>{
+
+  if(
+   event.key===
+   "Escape"
+  ){
+
+   closeInspect();
+
+  }
+
+ }
+);
+
+
+/* ============================================================
+   UPDATE
+============================================================ */
+
+function clickUpgradeCost(){
+
+ return Math.round(
+
+  250*
+
+  Math.pow(
+   1.55,
+   state.clickLevel-
+   1
+  )
+
+ );
+
+}
+
+
+function update(){
+
+ $("balance")
+ .textContent=
+
+ money(
+  state.balance
+ );
+
+
+ $("opened")
+ .textContent=
+
+ state.opened;
+
+
+ $("invCount")
+ .textContent=
+
+ state.inventory
+ .length;
+
+
+ $("invValue")
+ .textContent=
+
+ money(
+
+  state.inventory
+  .reduce(
+   (
+    sum,
+    item
+   )=>
+   sum+
+   item.price,
+   0
+  )
+
+ );
+
+
+ $("clickPower")
+ .textContent=
+
+ money(
+  state.clickLevel
+ );
+
+
+ $("clickCount")
+ .textContent=
+
+ state.clicks;
+
+
+ $("combo")
+ .textContent=
+
+ "×"+
+
+ (
+  1+
+
+  Math.min(
+   state.combo,
+   20
+  )*.025
+ )
+ .toFixed(2);
+
+
+ $("comboBar")
+ .style
+ .width=
+
+ Math.min(
+  100,
+  state.combo*5
+ )
+
+ +"%";
+
+
+ $("clickUpgradeCost")
+ .textContent=
+
+ money(
+  clickUpgradeCost()
+ );
+
+
+ $("buyClick")
+ .disabled=
+
+ state.balance<
+ clickUpgradeCost();
+
+
+ $("swapBalance")
+ .textContent=
+
+ money(
+  state.balance
+ );
+
+
+ updateOpenButton();
+
+
+ save();
+
+}
+
+
+/* ============================================================
+   TABS
+============================================================ */
+
+document
+.querySelectorAll(
+ ".tab"
+)
+.forEach(
+ tab=>{
+
+  tab.onclick=()=>{
+
+   document
+   .querySelectorAll(
+    ".tab"
+   )
+   .forEach(
+    element=>
+    element
+    .classList
+    .remove(
+     "active"
+    )
+   );
+
+
+   tab
+   .classList
+   .add(
+    "active"
+   );
+
+
+   const target=
+   tab.dataset.tab;
+
+
+   [
+    "cases",
+    "clicker",
+    "upgrader",
+    "craft",
+    "swap",
+    "inventory"
+   ]
+   .forEach(
+    name=>{
+
+     $(name+"Tab")
+     .hidden=
+
+     target!==name;
+
+    }
+   );
+
+
+   if(
+    target===
+    "inventory"
+   ){
+
+    renderInventory();
+
+   }
+
+
+   if(
+    target===
+    "upgrader"
+   ){
+
+    renderUpgrader();
+
+   }
+
+
+   if(
+    target===
+    "craft"
+   ){
+
+    renderCraft();
+
+   }
+
+
+   if(
+    target===
+    "swap"
+   ){
+
+    if(
+     !$("swapBudget")
+     .value
+    ){
+
+     $("swapBudget")
+     .value=
+     state.balance;
+
+    }
+
+
+    renderSwap();
+
+   }
+
+  };
+
+ }
+);
+
+
+/* ============================================================
+   RESET
+============================================================ */
+
+$("resetBtn")
+.onclick=()=>{
+
+ if(
+  !confirm(
+   "Сбросить прогресс?"
+  )
+ )
+  return;
+
+
+ state={
+
+  balance:10000,
+
+  opened:0,
+
+  inventory:[],
+
+  clicks:0,
+
+  clickLevel:1,
+
+  combo:0,
+
+  lastClick:0
+
+ };
+
+
+ upSource=
+ null;
+
+
+ upTarget=
+ null;
+
+
+ upAnimating=
+ false;
+
+
+ craftIds.clear();
+
+
+ save();
+
+ update();
+
+ renderInventory();
+
+
+ notify(
+  "Прогресс сброшен"
+ );
+
+};
+
+
+/* ============================================================
+   START
+============================================================ */
+
+load();
+
+</script>
+
+</body>
+</html>

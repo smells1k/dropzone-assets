@@ -1,0 +1,2241 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CS2 Container Simulator</title>
+
+<style>
+:root{
+  --bg:#0d1217;--panel:#1b2229;--line:#424d56;
+  --text:#e1e5e8;--muted:#89949d;--gold:#d9a23b;
+  --r1:#4b69ff;--r2:#8847ff;--r3:#d32ce6;--r4:#eb4b4b;--r5:#e6bd36
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:"Arial Narrow","Segoe UI",Arial,sans-serif}
+body{
+  color:var(--text);
+  background:radial-gradient(1100px 600px at 50% -170px,#3b4751,#202830 35%,#10161b 72%);
+  background-attachment:fixed
+}
+button,input,select{font:inherit}
+button{cursor:pointer}
+
+/* HEADER */
+header{
+  height:58px;display:flex;align-items:center;gap:13px;padding:0 22px;
+  position:sticky;top:0;z-index:50;background:linear-gradient(#171c20,#0c1013);
+  border-bottom:1px solid #414a51;box-shadow:0 2px 15px #0007
+}
+.logo{font-weight:900;font-size:21px;color:#eee}
+.logo span{color:var(--gold)}
+.stat{font-size:10px;color:var(--muted);border-left:1px solid #3c454c;padding-left:12px}
+.stat b{display:block;color:#e5e8ea;font-size:12px}
+.balance b{color:#e4ad47}
+.spacer{flex:1}
+
+/* BUTTONS */
+.btn{
+  border:1px solid #56616a;border-radius:2px;padding:9px 17px;color:#e5e8ea;
+  background:linear-gradient(#4b555d,#343c43);font-size:11px;font-weight:800;
+  text-transform:uppercase;box-shadow:inset 0 1px #ffffff12,0 1px 3px #0007
+}
+.btn:hover{filter:brightness(1.15)}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.35;cursor:default;filter:grayscale(1)}
+.btn.green{background:linear-gradient(#819e47,#576e30);border-color:#829d4d}
+.btn.gold{background:linear-gradient(#e2b04c,#b97820);border-color:#d6a13b;color:#151515}
+.btn.red{background:linear-gradient(#754447,#4e2e31);border-color:#815054}
+.btn.small{font-size:9px;padding:6px 10px}
+
+/* LAYOUT */
+main{max-width:1460px;margin:auto;padding:21px 28px 60px}
+.tabs{display:flex;height:40px;border-bottom:1px solid #46515a;margin-bottom:22px}
+.tab{
+  border:0;border-bottom:3px solid transparent;background:transparent;color:#89959e;
+  padding:0 25px;font-size:11px;font-weight:800
+}
+.tab:hover{color:white}
+.tab.active{color:#eee;border-bottom-color:var(--gold);background:linear-gradient(transparent,#d9a23b10)}
+.toolbar{display:flex;align-items:center;gap:12px;margin-bottom:17px}
+.search{
+  width:330px;max-width:100%;padding:9px 12px;color:#ddd;background:#151b20;
+  border:1px solid #4c565e;outline:none
+}
+.search:focus{border-color:#79838c}
+.muted{font-size:10px;color:var(--muted)}
+h2{color:#e5e8ea;font-size:17px;font-weight:600}
+
+/* LOADING */
+.loading{min-height:520px;display:flex;align-items:center;justify-content:center;text-align:center}
+.spinner{
+  width:44px;height:44px;margin:0 auto 15px;border:3px solid #44505a;
+  border-top-color:var(--gold);border-radius:50%;animation:rot .75s linear infinite
+}
+@keyframes rot{to{transform:rotate(360deg)}}
+.load-title{font-size:15px}
+.load-sub{font-size:10px;color:var(--muted);margin-top:6px}
+
+/* CASE GRID */
+.case-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:7px}
+.case{
+  min-height:235px;padding:14px;text-align:center;cursor:pointer;position:relative;overflow:hidden;
+  background:linear-gradient(150deg,#272f36,#181e23);border:1px solid #3b454e
+}
+.case:hover{background:linear-gradient(150deg,#323b42,#20272c);border-color:#737d85}
+.case:after{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--gold);opacity:0
+}
+.case:hover:after{opacity:1}
+.case-img{height:165px;display:flex;align-items:center;justify-content:center;position:relative}
+.case-img:after{
+  content:"";position:absolute;width:135px;height:23px;bottom:18px;background:#0008;
+  border-radius:50%;filter:blur(14px)
+}
+.case-img img{
+  max-width:96%;max-height:150px;object-fit:contain;position:relative;z-index:2;
+  filter:drop-shadow(0 7px 9px #0008)
+}
+.case:hover img{transform:scale(1.03)}
+.case-name{font-size:13px;font-weight:700;min-height:31px}
+.case-info{font-size:9px;color:#7f8b94}
+
+/* PANELS */
+.panel{
+  padding:19px;margin-bottom:14px;background:linear-gradient(#20282f,#171d22);
+  border:1px solid #3d474f;box-shadow:inset 0 1px #ffffff0a,0 3px 14px #0004
+}
+.back{margin-bottom:11px}
+.case-head{display:flex;align-items:center;gap:17px;margin-bottom:14px}
+.case-head img{width:125px;height:82px;object-fit:contain;filter:drop-shadow(0 6px 9px #000)}
+.case-head h2{font-size:21px;margin:0 0 4px}
+
+/* ROULETTE */
+.roulette{
+  height:210px;position:relative;overflow:hidden;background:linear-gradient(#11171b,#080c0f);
+  border:1px solid #46515a;box-shadow:inset 0 0 90px #000b
+}
+.roulette:before,.roulette:after{
+  content:"";position:absolute;top:0;bottom:0;width:170px;z-index:7;pointer-events:none
+}
+.roulette:before{left:0;background:linear-gradient(90deg,#080b0e,transparent)}
+.roulette:after{right:0;background:linear-gradient(-90deg,#080b0e,transparent)}
+.marker{
+  position:absolute;left:50%;top:0;bottom:0;width:2px;z-index:10;
+  transform:translateX(-50%);background:#d7a13a;box-shadow:0 0 8px #d7a13aaa
+}
+.marker:before,.marker:after{
+  content:"";position:absolute;left:50%;transform:translateX(-50%);
+  border-left:10px solid transparent;border-right:10px solid transparent
+}
+.marker:before{top:0;border-top:14px solid #d7a13a}
+.marker:after{bottom:0;border-bottom:14px solid #d7a13a}
+.strip{height:100%;display:flex;gap:4px;padding:12px 0;will-change:transform}
+
+/* ITEMS */
+.item{
+  --rarity:var(--r1);
+  width:158px;flex:0 0 158px;padding:8px;position:relative;overflow:hidden;
+  background:linear-gradient(150deg,#292f35,#161c20);
+  border:1px solid #333d44;border-bottom:5px solid var(--rarity)
+}
+.item:before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(circle at 50% 35%,color-mix(in srgb,var(--rarity) 18%,transparent),transparent 65%)
+}
+.r1{--rarity:var(--r1)}
+.r2{--rarity:var(--r2)}
+.r3{--rarity:var(--r3)}
+.r4{--rarity:var(--r4)}
+.r5{--rarity:var(--r5)}
+.item-img{height:100px;display:flex;align-items:center;justify-content:center;position:relative}
+.item-img img{width:100%;height:94px;object-fit:contain;filter:drop-shadow(0 5px 7px #0009)}
+.weapon{
+  position:relative;font-size:9px;color:#949ea6;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis
+}
+.skin{position:relative;height:27px;color:#e2e5e7;font-size:10px;font-weight:700;overflow:hidden;margin-top:2px}
+.item-foot{position:relative;font-size:8px;color:#79858e;line-height:1.35}
+.price{color:#d0a14a;font-weight:700}
+.st{color:#cf7138;font-weight:800}
+
+/* =========================================================
+   ★ RARE SPECIAL ITEM — DISCORD PNG
+========================================================= */
+
+.secret-item{
+  --rarity:var(--r5);
+
+  background:
+    radial-gradient(circle at 50% 42%,#e7ba3f33 0%,#9e761f26 35%,transparent 67%),
+    linear-gradient(145deg,#493b16,#201b0c 64%,#131107)!important;
+
+  border:1px solid #80681f!important;
+  border-bottom:5px solid #e6bd36!important;
+
+  box-shadow:
+    inset 0 0 26px #f1c54316,
+    0 0 5px #e2b83233;
+
+  isolation:isolate
+}
+
+.secret-item:before{
+  content:"";position:absolute;inset:-15px;z-index:0;opacity:1;pointer-events:none;
+
+  background:
+    radial-gradient(circle at 50% 42%,#fff6b742 0%,#edbf3b31 20%,#d39f1e14 42%,transparent 69%);
+
+  animation:secretPulse 2s ease-in-out infinite alternate
+}
+
+@keyframes secretPulse{
+  from{opacity:.52;transform:scale(.93)}
+  to{opacity:1;transform:scale(1.12)}
+}
+
+/* spinning halo behind PNG */
+.secret-halo{
+  position:absolute;
+  z-index:1;
+  left:50%;top:47%;
+  width:125px;height:125px;
+  transform:translate(-50%,-50%);
+  pointer-events:none;
+  border-radius:50%;
+
+  background:
+    conic-gradient(
+      from 0deg,
+      transparent,
+      #f6d55924,
+      transparent 15%,
+      #e8bd3c29,
+      transparent 35%,
+      #ffe77b23,
+      transparent 58%,
+      #e9bd3829,
+      transparent 78%
+    );
+
+  filter:blur(4px);
+
+  animation:haloRotate 8s linear infinite
+}
+
+@keyframes haloRotate{
+  to{transform:translate(-50%,-50%) rotate(360deg)}
+}
+
+.secret-image-box{
+  height:108px;
+  position:relative;
+  z-index:3;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:visible
+}
+
+.secret-image{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  pointer-events:none;
+
+  filter:
+    drop-shadow(0 0 4px #fff1a099)
+    drop-shadow(0 0 10px #e4b82aaa)
+    drop-shadow(0 0 22px #c38a12aa)
+    drop-shadow(0 7px 8px #000a);
+
+  animation:secretImageGlow 1.7s ease-in-out infinite alternate
+}
+
+@keyframes secretImageGlow{
+  from{
+    filter:
+      drop-shadow(0 0 3px #ffe66b77)
+      drop-shadow(0 0 8px #dfaa24aa)
+      drop-shadow(0 0 14px #a9700b88)
+      drop-shadow(0 7px 8px #000a)
+  }
+  to{
+    filter:
+      drop-shadow(0 0 5px #fff4aaee)
+      drop-shadow(0 0 16px #f0c03bdd)
+      drop-shadow(0 0 30px #d39918bb)
+      drop-shadow(0 7px 8px #000a)
+  }
+}
+
+/* moving shine */
+.secret-shine{
+  position:absolute;
+  z-index:4;
+  top:-35%;
+  bottom:-35%;
+  left:-75%;
+  width:38%;
+  pointer-events:none;
+
+  transform:rotate(19deg);
+
+  background:linear-gradient(
+    90deg,
+    transparent,
+    #fff2a012,
+    #fff9c152,
+    #fff2a014,
+    transparent
+  );
+
+  filter:blur(2px);
+
+  animation:secretShine 4.2s ease-in-out infinite
+}
+
+@keyframes secretShine{
+  0%,62%{left:-75%}
+  100%{left:145%}
+}
+
+.secret-name{
+  position:relative;z-index:5;
+  color:#e6c254!important;
+  font-size:9px!important;
+  font-weight:900;
+  text-align:center;
+  letter-spacing:.7px;
+
+  text-shadow:
+    0 0 7px #dba52b88,
+    0 1px 2px #000
+}
+
+.secret-sub{
+  position:relative;z-index:5;
+  color:#f0df9d;
+  font-size:9px;
+  text-align:center;
+  font-weight:700
+}
+
+/* stronger glow while rare card exists in roulette */
+.strip .secret-item{
+  box-shadow:
+    inset 0 0 28px #efc84d23,
+    0 0 13px #dca82838
+}
+
+/* ODDS */
+.odds{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:10px}
+.odd{padding:7px 9px;background:#11161a;border:1px solid #303940;color:#87929a;font-size:9px}
+.odd b{display:block;color:#dce0e2;font-size:11px}
+.odd-line{height:2px;margin-top:5px;background:var(--rarity)}
+
+/* CONTROLS */
+.controls{display:flex;justify-content:center;align-items:center;gap:9px;margin-top:15px;flex-wrap:wrap}
+.controls select{height:35px;background:#151b20;color:#ddd;border:1px solid #4b555e;padding:0 9px}
+.check{font-size:10px;color:#8d989f}
+
+/* CONTENTS */
+.pool{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:4px}
+.pool .item{width:auto;min-height:176px}
+
+/* INVENTORY */
+.inv-tools{display:flex;gap:7px;margin-bottom:13px}
+.inventory{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:5px}
+.inv-wrap{position:relative}
+.inv-wrap .item{width:auto;min-height:180px}
+.sell{
+  position:absolute;left:0;right:0;bottom:0;padding:7px;border:0;background:#607833ed;
+  color:#fff;font-size:9px;font-weight:800;opacity:0
+}
+.inv-wrap:hover .sell{opacity:1}
+.inspect-inv{
+  position:absolute;z-index:5;top:5px;left:5px;padding:5px 8px;background:#11171be8;
+  color:#ddd;border:1px solid #59636b;font-size:8px;font-weight:800;opacity:0
+}
+.inv-wrap:hover .inspect-inv{opacity:1}
+.empty{grid-column:1/-1;text-align:center;padding:70px;color:#7e8992}
+
+/* RESULT */
+.modal{
+  position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;
+  background:radial-gradient(circle,#252e36ef,#07090bf8 72%);backdrop-filter:blur(5px)
+}
+.modal.open{display:flex}
+.result{
+  --rarity:var(--r1);width:min(570px,96vw);padding:27px;text-align:center;
+  background:
+    radial-gradient(circle at 50% 35%,color-mix(in srgb,var(--rarity) 15%,transparent),transparent 55%),
+    linear-gradient(#252d34,#141a1f);
+  border:1px solid #515c64;border-bottom:4px solid var(--rarity);
+  box-shadow:0 30px 90px #000d;
+  animation:pop .28s cubic-bezier(.2,1.25,.45,1)
+}
+@keyframes pop{from{transform:scale(.72);opacity:0}}
+.result img{width:100%;height:235px;object-fit:contain;filter:drop-shadow(0 12px 17px #000c)}
+.result.r5{
+  box-shadow:
+    0 0 30px #e4b42c36,
+    0 0 80px #c98d1530,
+    0 30px 90px #000d
+}
+.result.r5 img{
+  filter:
+    drop-shadow(0 0 10px #e8bd3555)
+    drop-shadow(0 12px 17px #000c)
+}
+.result-rarity{font-size:10px;font-weight:800;letter-spacing:1px;color:var(--rarity)}
+.result h3{font-size:21px;font-weight:500;margin:7px 0}
+.result-meta{font-size:10px;color:#89949c}
+.result-price{font-size:23px;color:#d4a23f;font-weight:800;margin:12px 0 17px}
+.result-buttons{display:flex;justify-content:center;gap:8px}
+
+/* INSPECT */
+.inspect{
+  position:fixed;inset:0;z-index:500;display:none;overflow:hidden;cursor:grab;
+  background:radial-gradient(ellipse at 50% 45%,#586774,#333d45 30%,#181e23 68%,#0b0f12);
+  user-select:none
+}
+.inspect.open{display:block}
+.inspect.dragging{cursor:grabbing}
+.inspect:after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse at center,transparent 43%,#0009)
+}
+.inspect-top{
+  position:absolute;z-index:20;left:0;right:0;top:0;height:62px;display:flex;align-items:center;
+  padding:0 24px;background:linear-gradient(#10151bd8,transparent)
+}
+.inspect-close{border:0;background:transparent;color:#eee;font-size:12px;font-weight:800;padding:12px}
+.inspect-stage{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  overflow:hidden;touch-action:none
+}
+.inspect-weapon{
+  max-width:75vw;max-height:67vh;object-fit:contain;pointer-events:none;
+  transform-origin:center;filter:drop-shadow(0 36px 30px #000b);will-change:transform
+}
+.inspect-info{
+  position:absolute;z-index:20;left:35px;bottom:32px;text-shadow:0 2px 3px #000
+}
+.inspect-rarity{font-size:10px;font-weight:900;letter-spacing:1.4px}
+.inspect-title{font-size:24px;color:#f0f2f3;margin-top:5px}
+.inspect-meta{color:#a3adb5;font-size:10px;margin-top:6px}
+.inspect-help{
+  position:absolute;z-index:20;right:30px;bottom:30px;color:#89949c;
+  font-size:9px;line-height:1.7;text-align:right
+}
+.inspect-reset{position:absolute;z-index:30;right:25px;top:18px}
+
+.toast{
+  position:fixed;right:18px;bottom:18px;z-index:700;padding:10px 14px;
+  background:#202931;border:1px solid #4b5964;font-size:10px;opacity:0;
+  transform:translateY(50px);transition:.2s
+}
+.toast.show{opacity:1;transform:none}
+
+@media(max-width:750px){
+  header{padding:0 10px}
+  .stat:nth-of-type(n+3){display:none}
+  main{padding:12px}
+  .case-grid{grid-template-columns:repeat(2,1fr)}
+  .case{min-height:190px}
+  .case-img{height:120px}
+  .case-img img{max-height:110px}
+  .odds{grid-template-columns:repeat(2,1fr)}
+  .inspect-weapon{max-width:94vw;max-height:60vh}
+  .inspect-info{left:15px;bottom:18px}
+  .inspect-title{font-size:17px}
+  .inspect-help{display:none}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">CS2<span> CONTAINERS</span></div>
+  <div class="stat balance">БАЛАНС<b id="balance">0 ₽</b></div>
+  <div class="stat">ОТКРЫТО<b id="opened">0</b></div>
+  <div class="stat">ПОТРАЧЕНО<b id="spent">0 ₽</b></div>
+  <div class="stat">ИНВЕНТАРЬ<b id="invValue">0 ₽</b></div>
+  <div class="spacer"></div>
+  <button id="moneyBtn" class="btn small">+10 000 ₽</button>
+  <button id="resetBtn" class="btn red small">Сброс</button>
+</header>
+
+<main>
+
+<div id="loading" class="loading">
+  <div>
+    <div class="spinner"></div>
+    <div class="load-title">Загрузка базы CS2</div>
+    <div id="loadText" class="load-sub">Получение контейнеров...</div>
+  </div>
+</div>
+
+<div id="app" hidden>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="cases">КОНТЕЙНЕРЫ</button>
+    <button class="tab" data-tab="inv">ИНВЕНТАРЬ (<span id="invCount">0</span>)</button>
+  </div>
+
+  <section id="casesTab">
+
+    <div id="caseSelect">
+      <div class="toolbar">
+        <input id="search" class="search" placeholder="Поиск контейнера">
+        <span id="caseCount" class="muted"></span>
+      </div>
+      <div id="caseGrid" class="case-grid"></div>
+    </div>
+
+    <div id="caseOpen" hidden>
+
+      <button id="backBtn" class="btn small back">← Назад</button>
+
+      <div class="panel">
+
+        <div class="case-head">
+          <img id="caseImage">
+          <div>
+            <h2 id="caseName"></h2>
+            <div id="caseMeta" class="muted"></div>
+          </div>
+        </div>
+
+        <div class="roulette">
+          <div class="marker"></div>
+          <div id="strip" class="strip"></div>
+        </div>
+
+        <div id="odds" class="odds"></div>
+
+        <div class="controls">
+
+          <select id="amount">
+            <option value="1">Открыть x1</option>
+            <option value="5">Открыть x5</option>
+            <option value="10">Открыть x10</option>
+          </select>
+
+          <button id="openBtn" class="btn green">Открыть</button>
+
+          <label class="check">
+            <input id="fast" type="checkbox">
+            Быстро
+          </label>
+
+        </div>
+
+      </div>
+
+      <div class="panel">
+        <h2>Содержимое <span id="contentCount" class="muted"></span></h2>
+        <div id="contents" class="pool"></div>
+      </div>
+
+    </div>
+
+  </section>
+
+  <section id="invTab" hidden>
+
+    <div class="inv-tools">
+      <button id="sortBtn" class="btn small">По цене</button>
+      <button id="sellAllBtn" class="btn small">Продать всё</button>
+    </div>
+
+    <div id="inventory" class="inventory"></div>
+
+  </section>
+
+</div>
+</main>
+
+<div id="modal" class="modal">
+  <div id="modalBody"></div>
+</div>
+
+<div id="inspect" class="inspect">
+
+  <div class="inspect-top">
+    <button id="inspectClose" class="inspect-close">← НАЗАД</button>
+  </div>
+
+  <button id="inspectReset" class="btn small inspect-reset">СБРОСИТЬ ВИД</button>
+
+  <div id="inspectStage" class="inspect-stage">
+    <img id="inspectWeapon" class="inspect-weapon" draggable="false">
+  </div>
+
+  <div class="inspect-info">
+    <div id="inspectRarity" class="inspect-rarity"></div>
+    <div id="inspectTitle" class="inspect-title"></div>
+    <div id="inspectMeta" class="inspect-meta"></div>
+  </div>
+
+  <div class="inspect-help">
+    КОЛЕСО — МАСШТАБ<br>
+    ЛКМ + ДВИЖЕНИЕ — ПЕРЕМЕЩЕНИЕ<br>
+    ДВОЙНОЙ КЛИК — СБРОС<br>
+    ESC — НАЗАД
+  </div>
+
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+"use strict";
+
+/*
+  ВАЖНО:
+  Discord CDN URL подписанный и может истечь.
+  Для финальной игры скачай rarespecialitem.png
+  рядом с HTML и замени эту строку на:
+  const SECRET_IMAGE = "./rarespecialitem.png";
+*/
+const SECRET_IMAGE =
+"https://cdn.discordapp.com/attachments/1529703500051779625/1553301971937534033/rarespecialitem.png?ex=6ab8c0b1&is=6ab76f31&hm=5e513d2c79c2b4d7eeb9ab7a4996413dbdf1db4677e2a06cf364b5830a424b78&";
+
+const API=
+"https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/";
+
+const CRATES_URL=API+"crates.json";
+const SKINS_URL=API+"skins.json";
+
+const ODDS=[
+  {cls:"r1",chance:.7992,name:"Mil-Spec"},
+  {cls:"r2",chance:.1598,name:"Restricted"},
+  {cls:"r3",chance:.0320,name:"Classified"},
+  {cls:"r4",chance:.0064,name:"Covert"},
+  {cls:"r5",chance:.0026,name:"★ Rare Special"}
+];
+
+const KEY_PRICE=700;
+
+const WEARS=[
+  {name:"Factory New",short:"FN",max:.07,mult:1.8},
+  {name:"Minimal Wear",short:"MW",max:.15,mult:1.35},
+  {name:"Field-Tested",short:"FT",max:.38,mult:1},
+  {name:"Well-Worn",short:"WW",max:.45,mult:.82},
+  {name:"Battle-Scarred",short:"BS",max:1.01,mult:.67}
+];
+
+const PRICE_RANGE={
+  r1:[5,70],
+  r2:[40,500],
+  r3:[250,3000],
+  r4:[1200,35000],
+  r5:[15000,300000]
+};
+
+const $=id=>document.getElementById(id);
+
+let allSkins=[];
+let allCrates=[];
+let cases=[];
+let currentCase=null;
+let spinning=false;
+
+let state={
+  balance:25000,
+  opened:0,
+  spent:0,
+  inventory:[]
+};
+
+try{
+  const stored=JSON.parse(localStorage.getItem("cs2-secret-png-v2"));
+  if(stored)state={...state,...stored};
+}catch{}
+
+function save(){
+  try{
+    localStorage.setItem("cs2-secret-png-v2",JSON.stringify(state));
+  }catch{}
+}
+
+function esc(v){
+  return String(v??"")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;");
+}
+
+function money(v){
+  return Math.round(v).toLocaleString("ru-RU")+" ₽";
+}
+
+function random(a){
+  return a[Math.floor(Math.random()*a.length)];
+}
+
+function hash(s){
+  let h=2166136261;
+  for(let i=0;i<s.length;i++){
+    h^=s.charCodeAt(i);
+    h=Math.imul(h,16777619);
+  }
+  return h>>>0;
+}
+
+function h01(s){
+  return(hash(s)%100000)/100000;
+}
+
+function uuid(){
+  return crypto.randomUUID?crypto.randomUUID():Date.now()+"-"+Math.random();
+}
+
+function imageOf(x){
+  if(!x)return"";
+  if(typeof x.image==="string")return x.image;
+
+  if(x.image&&typeof x.image==="object")
+    return x.image.url||x.image.large||x.image.small||"";
+
+  return"";
+}
+
+function wearOf(f){
+  return WEARS.find(x=>f<x.max)||WEARS[4];
+}
+
+function rarityFromName(name){
+  name=String(name||"").toLowerCase();
+
+  if(name.includes("covert")||name.includes("extraordinary"))return"r4";
+  if(name.includes("classified"))return"r3";
+  if(name.includes("restricted"))return"r2";
+
+  return"r1";
+}
+
+function normalize(x){
+  return{
+    id:x.id,
+    name:x.name||"Unknown",
+    weapon:x.weapon?.name||x.name?.split("|")[0]?.trim()||"Item",
+    skin:x.pattern?.name||x.name?.split("|")[1]?.trim()||x.name||"Item",
+    image:imageOf(x),
+    rarity:rarityFromName(x.rarity?.name),
+    min:Number.isFinite(x.min_float)?x.min_float:0,
+    max:Number.isFinite(x.max_float)?x.max_float:1
+  };
+}
+
+function notify(text){
+  $("toast").textContent=text;
+  $("toast").classList.add("show");
+
+  clearTimeout($("toast").timer);
+
+  $("toast").timer=
+    setTimeout(()=>$("toast").classList.remove("show"),1700);
+}
+
+/* API */
+
+async function getJSON(url){
+  const response=await fetch(url,{cache:"no-cache"});
+
+  if(!response.ok)
+    throw new Error(response.status+" "+response.statusText);
+
+  return response.json();
+}
+
+async function load(){
+
+  try{
+
+    $("loadText").textContent="Загрузка crates.json";
+    allCrates=await getJSON(CRATES_URL);
+
+    $("loadText").textContent="Загрузка skins.json";
+    allSkins=await getJSON(SKINS_URL);
+
+    buildCases();
+
+    $("loading").style.display="none";
+    $("app").hidden=false;
+
+    renderCases();
+    renderInventory();
+    updateUI();
+
+  }catch(error){
+
+    console.error(error);
+
+    $("loading").innerHTML=`
+      <div>
+        <h2 style="color:#ff7777">Ошибка загрузки</h2>
+        <div class="load-sub">${esc(error.message)}</div>
+        <button class="btn gold" style="margin-top:15px" onclick="location.reload()">
+          Повторить
+        </button>
+      </div>
+    `;
+  }
+}
+
+/* DATABASE */
+
+function buildCases(){
+
+  const byId=new Map();
+
+  for(const raw of allSkins){
+    const item=normalize(raw);
+    byId.set(item.id,item);
+  }
+
+  const result=[];
+
+  for(const crate of allCrates){
+
+    if(!Array.isArray(crate.contains)||!crate.contains.length)
+      continue;
+
+    const n=String(crate.name||"").toLowerCase();
+
+    if(
+      n.includes("sticker")||
+      n.includes("capsule")||
+      n.includes("souvenir")||
+      n.includes("graffiti")||
+      n.includes("patch")||
+      n.includes("music kit")||
+      n.includes("package")
+    )continue;
+
+    const normal=[];
+
+    for(const ref of crate.contains){
+
+      let item=ref.id?byId.get(ref.id):null;
+
+      if(!item&&ref.image)
+        item=normalize(ref);
+
+      if(item?.image)
+        normal.push(item);
+    }
+
+    if(normal.length<5)
+      continue;
+
+    const rare=[];
+
+    if(Array.isArray(crate.contains_rare)){
+
+      for(const ref of crate.contains_rare){
+
+        let item=ref.id?byId.get(ref.id):null;
+
+        if(!item&&ref.image)
+          item=normalize(ref);
+
+        if(item?.image)
+          rare.push({...item,rarity:"r5"});
+      }
+    }
+
+    const groups={
+      r1:normal.filter(x=>x.rarity==="r1"),
+      r2:normal.filter(x=>x.rarity==="r2"),
+      r3:normal.filter(x=>x.rarity==="r3"),
+      r4:normal.filter(x=>x.rarity==="r4"),
+      r5:rare
+    };
+
+    if(!groups.r1.length&&!groups.r2.length)
+      continue;
+
+    result.push({
+      id:crate.id,
+      name:crate.name,
+      image:imageOf(crate),
+      normal,
+      rare,
+      groups
+    });
+  }
+
+  cases=result.reverse();
+}
+
+/* CASES */
+
+function renderCases(){
+
+  const query=$("search").value.trim().toLowerCase();
+
+  const list=cases.filter(
+    x=>!query||x.name.toLowerCase().includes(query)
+  );
+
+  $("caseCount").textContent="Контейнеров: "+list.length;
+  $("caseGrid").innerHTML="";
+
+  for(const c of list){
+
+    const el=document.createElement("div");
+
+    el.className="case";
+
+    el.innerHTML=`
+      <div class="case-img">
+        <img src="${esc(c.image)}" loading="lazy">
+      </div>
+
+      <div class="case-name">${esc(c.name)}</div>
+
+      <div class="case-info">
+        ${c.normal.length} предметов
+        ${c.rare.length?" · ★ редкий особый предмет":""}
+      </div>
+    `;
+
+    el.onclick=()=>selectCase(c);
+
+    $("caseGrid").appendChild(el);
+  }
+}
+
+$("search").oninput=renderCases;
+
+function selectCase(c){
+
+  currentCase=c;
+
+  $("caseSelect").hidden=true;
+  $("caseOpen").hidden=false;
+
+  $("caseImage").src=c.image;
+  $("caseName").textContent=c.name;
+
+  $("caseMeta").textContent=
+    c.normal.length+
+    " предметов"+
+    (c.rare.length?" · содержит ★ редкий особый предмет":"");
+
+  renderOdds();
+  renderContents();
+  idleStrip();
+  updateUI();
+
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+$("backBtn").onclick=()=>{
+
+  if(spinning)return;
+
+  currentCase=null;
+
+  $("caseOpen").hidden=true;
+  $("caseSelect").hidden=false;
+};
+
+/* ODDS */
+
+function renderOdds(){
+
+  $("odds").innerHTML=
+    ODDS.map(x=>`
+      <div class="odd ${x.cls}">
+        <b>${(x.chance*100).toFixed(2)}%</b>
+        ${x.name}
+        <div class="odd-line"></div>
+      </div>
+    `).join("");
+}
+
+/* SECRET SPECIAL ITEM */
+
+function secretHTML(){
+
+  return`
+    <div class="item r5 secret-item">
+
+      <div class="secret-halo"></div>
+
+      <div class="secret-image-box">
+        <img
+          class="secret-image"
+          src="${SECRET_IMAGE}"
+          draggable="false"
+          alt="Rare Special Item">
+        <div class="secret-shine"></div>
+      </div>
+
+      <div class="secret-name">
+        ★ RARE SPECIAL ITEM
+      </div>
+
+      <div class="secret-sub">
+        Редкий особый предмет
+      </div>
+
+    </div>
+  `;
+}
+
+/* NORMAL ITEM */
+
+function staticHTML(x){
+
+  return`
+    <div class="item ${x.rarity}">
+
+      <div class="item-img">
+        <img src="${esc(x.image)}" loading="lazy">
+      </div>
+
+      <div class="weapon">${esc(x.weapon)}</div>
+
+      <div class="skin">${esc(x.skin)}</div>
+
+    </div>
+  `;
+}
+
+function renderContents(){
+
+  const normal=[
+    ...currentCase.groups.r4,
+    ...currentCase.groups.r3,
+    ...currentCase.groups.r2,
+    ...currentCase.groups.r1
+  ];
+
+  $("contentCount").textContent=
+    "("+normal.length+(currentCase.groups.r5.length?" + ★":"")+")";
+
+  $("contents").innerHTML=
+    (currentCase.groups.r5.length?secretHTML():"")+
+    normal.map(staticHTML).join("");
+}
+
+/* RNG */
+
+function rarityRoll(){
+
+  const randomValue=Math.random();
+
+  let total=0;
+
+  for(const rarity of ODDS){
+
+    total+=rarity.chance;
+
+    if(randomValue<total)
+      return rarity.cls;
+  }
+
+  return"r1";
+}
+
+function available(rarity){
+
+  if(currentCase.groups[rarity]?.length)
+    return rarity;
+
+  const order=["r1","r2","r3","r4","r5"];
+
+  const index=order.indexOf(rarity);
+
+  for(let distance=1;distance<5;distance++){
+
+    const down=order[index-distance];
+
+    if(down&&currentCase.groups[down]?.length)
+      return down;
+
+    const up=order[index+distance];
+
+    if(up&&currentCase.groups[up]?.length)
+      return up;
+  }
+
+  return"r1";
+}
+
+function roll(){
+
+  const rarity=available(rarityRoll());
+
+  const source=random(currentCase.groups[rarity]);
+
+  const float=
+    source.min+
+    Math.random()*
+    Math.max(0,source.max-source.min);
+
+  const wear=wearOf(float);
+
+  const glove=/glove|wrap/i.test(source.weapon);
+
+  const stattrak=
+    !glove&&
+    Math.random()<.10;
+
+  const range=PRICE_RANGE[rarity];
+
+  let price=
+    range[0]*
+    Math.pow(
+      range[1]/range[0],
+      h01(source.name+":price")
+    )*
+    wear.mult;
+
+  if(stattrak)
+    price*=1.55;
+
+  return{
+    uid:uuid(),
+    weapon:source.weapon,
+    skin:source.skin,
+    image:source.image,
+    rarity,
+    float,
+    wear,
+    stattrak,
+    price:Math.max(1,Math.round(price))
+  };
+}
+
+function dropHTML(x){
+
+  return`
+    <div class="item ${x.rarity}">
+
+      <div class="item-img">
+        <img src="${esc(x.image)}">
+      </div>
+
+      <div class="weapon">
+        ${x.stattrak?'<span class="st">StatTrak™</span> ':''}
+        ${esc(x.weapon)}
+      </div>
+
+      <div class="skin">${esc(x.skin)}</div>
+
+      <div class="item-foot">
+        ${x.wear.short} · ${x.float.toFixed(3)}
+        <br>
+        <span class="price">${money(x.price)}</span>
+      </div>
+
+    </div>
+  `;
+}
+
+/* Hide actual rare item before it is revealed. */
+function rouletteHTML(x){
+
+  if(x.rarity==="r5")
+    return secretHTML();
+
+  return dropHTML(x);
+}
+
+function idleStrip(){
+
+  if(!currentCase)
+    return;
+
+  const items=
+    Array.from({length:45},()=>roll());
+
+  $("strip").style.transition="none";
+  $("strip").style.transform="translateX(0)";
+
+  $("strip").innerHTML=
+    items.map(rouletteHTML).join("");
+}
+
+/* AUDIO */
+
+let audioCtx=null;
+let master=null;
+
+function audio(){
+
+  if(!audioCtx){
+
+    audioCtx=
+      new(
+        window.AudioContext||
+        window.webkitAudioContext
+      )();
+
+    master=
+      audioCtx.createGain();
+
+    master.gain.value=.46;
+
+    master.connect(
+      audioCtx.destination
+    );
+  }
+
+  if(audioCtx.state==="suspended")
+    audioCtx.resume();
+
+  return audioCtx;
+}
+
+function tone(freq,duration=.06,volume=.04,type="triangle",delay=0){
+
+  try{
+
+    const ctx=audio();
+
+    const start=
+      ctx.currentTime+delay;
+
+    const oscillator=
+      ctx.createOscillator();
+
+    const gain=
+      ctx.createGain();
+
+    oscillator.type=type;
+    oscillator.frequency.value=freq;
+
+    gain.gain.setValueAtTime(volume,start);
+
+    gain.gain.exponentialRampToValueAtTime(
+      .0001,
+      start+duration
+    );
+
+    oscillator.connect(gain);
+    gain.connect(master);
+
+    oscillator.start(start);
+
+    oscillator.stop(
+      start+duration+.01
+    );
+
+  }catch{}
+}
+
+function clickSound(){
+  tone(310,.035,.025);
+  tone(180,.045,.018,"sine",.01);
+}
+
+function tick(){
+  tone(1300,.025,.018,"square");
+}
+
+function winSound(rarity){
+
+  if(rarity==="r5"){
+
+    tone(82,.5,.16,"sine");
+
+    [392,523,659,784]
+      .forEach((frequency,index)=>{
+
+        tone(
+          frequency,
+          .75,
+          .075,
+          index%2?"sine":"triangle",
+          .07+index*.075
+        );
+      });
+
+  }else if(
+    rarity==="r4"||
+    rarity==="r3"
+  ){
+
+    [220,330,440]
+      .forEach((frequency,index)=>{
+
+        tone(
+          frequency,
+          .45,
+          .05,
+          "triangle",
+          index*.04
+        );
+      });
+
+  }else{
+
+    tone(
+      230,
+      .18,
+      .06,
+      "sine"
+    );
+  }
+}
+
+document.addEventListener("click",event=>{
+
+  if(event.target.closest("button,.case,.tab"))
+    clickSound();
+});
+
+/* OPEN */
+
+$("amount").onchange=updateOpenButton;
+
+function updateOpenButton(){
+
+  const count=+$("amount").value;
+
+  $("openBtn").textContent=
+    "Открыть за "+
+    money(KEY_PRICE*count);
+
+  $("openBtn").disabled=
+    spinning||
+    state.balance<KEY_PRICE*count;
+}
+
+$("openBtn").onclick=()=>{
+
+  if(spinning||!currentCase)
+    return;
+
+  const count=
+    +$("amount").value;
+
+  const cost=
+    count*KEY_PRICE;
+
+  if(state.balance<cost){
+
+    notify("Недостаточно средств");
+
+    return;
+  }
+
+  state.balance-=cost;
+
+  state.spent+=cost;
+
+  state.opened+=count;
+
+  updateUI();
+
+  if(count>1||$("fast").checked){
+
+    const drops=[];
+
+    for(let i=0;i<count;i++){
+
+      const item=roll();
+
+      state.inventory.push(item);
+
+      drops.push(item);
+    }
+
+    save();
+
+    updateUI();
+
+    showMulti(drops);
+
+    return;
+  }
+
+  spinning=true;
+
+  updateOpenButton();
+
+  const winner=roll();
+
+  spin(
+    winner,
+    ()=>{
+
+      state.inventory.push(winner);
+
+      spinning=false;
+
+      save();
+
+      updateUI();
+
+      showResult(winner);
+    }
+  );
+};
+
+/* SPIN */
+
+function spin(winner,done){
+
+  const CARD=162;
+  const INDEX=36;
+  const TOTAL=47;
+
+  const list=[];
+
+  for(let i=0;i<TOTAL;i++){
+
+    list.push(
+      i===INDEX
+      ? winner
+      : roll()
+    );
+  }
+
+  $("strip").style.transition="none";
+
+  $("strip").style.transform="translateX(0)";
+
+  $("strip").innerHTML=
+    list.map(rouletteHTML).join("");
+
+  const width=
+    $("strip")
+    .parentElement
+    .clientWidth;
+
+  const jitter=
+    Math.random()*70-35;
+
+  const target=
+    -(
+      INDEX*CARD+
+      CARD/2-
+      width/2+
+      jitter
+    );
+
+  let running=true;
+
+  let last=-1;
+
+  requestAnimationFrame(
+    ()=>requestAnimationFrame(
+      ()=>{
+
+        $("strip").style.transition=
+          "transform 6.6s cubic-bezier(.08,.72,.11,1)";
+
+        $("strip").style.transform=
+          `translateX(${target}px)`;
+      }
+    )
+  );
+
+  function ticking(){
+
+    if(!running)
+      return;
+
+    const matrix=
+      new DOMMatrixReadOnly(
+        getComputedStyle(
+          $("strip")
+        ).transform
+      );
+
+    const index=
+      Math.floor(
+        (
+          -matrix.m41+
+          width/2
+        )/
+        CARD
+      );
+
+    if(last>=0&&index!==last)
+      tick();
+
+    last=index;
+
+    requestAnimationFrame(ticking);
+  }
+
+  requestAnimationFrame(ticking);
+
+  $("strip")
+    .addEventListener(
+      "transitionend",
+      function end(){
+
+        $("strip")
+          .removeEventListener(
+            "transitionend",
+            end
+          );
+
+        running=false;
+
+        /*
+          Reveal the actual knife/gloves
+          only after the roulette stops.
+        */
+        if(winner.rarity==="r5"){
+
+          const cards=
+            $("strip").children;
+
+          if(cards[INDEX]){
+
+            const temp=
+              document.createElement("div");
+
+            temp.innerHTML=
+              dropHTML(winner);
+
+            cards[INDEX]
+              .replaceWith(
+                temp.firstElementChild
+              );
+          }
+        }
+
+        winSound(
+          winner.rarity
+        );
+
+        setTimeout(
+          done,
+          winner.rarity==="r5"
+          ? 850
+          : 400
+        );
+      },
+
+      {once:true}
+    );
+}
+
+/* RESULT */
+
+function rarityLabel(rarity){
+
+  return{
+    r1:"MIL-SPEC",
+    r2:"RESTRICTED",
+    r3:"CLASSIFIED",
+    r4:"COVERT",
+    r5:"★ RARE SPECIAL ITEM"
+  }[rarity];
+}
+
+function showResult(item){
+
+  $("modalBody").innerHTML=`
+
+    <div class="result ${item.rarity}">
+
+      <div class="result-rarity">
+        ${rarityLabel(item.rarity)}
+      </div>
+
+      <img src="${esc(item.image)}">
+
+      <h3>
+
+        ${
+          item.stattrak
+          ? '<span class="st">StatTrak™</span> '
+          : ''
+        }
+
+        ${esc(item.weapon)}
+
+        |
+
+        ${esc(item.skin)}
+
+      </h3>
+
+      <div class="result-meta">
+
+        ${item.wear.name}
+
+        · Float
+
+        ${item.float.toFixed(8)}
+
+      </div>
+
+      <div class="result-price">
+
+        ${money(item.price)}
+
+      </div>
+
+      <div class="result-buttons">
+
+        <button
+          id="continueResult"
+          class="btn green">
+          Продолжить
+        </button>
+
+        <button
+          id="inspectResult"
+          class="btn gold">
+          Осмотреть
+        </button>
+
+        <button
+          id="sellResult"
+          class="btn">
+          Продать
+        </button>
+
+      </div>
+
+    </div>
+  `;
+
+  $("modal")
+    .classList
+    .add("open");
+
+  $("continueResult").onclick=()=>{
+
+    $("modal")
+      .classList
+      .remove("open");
+
+    idleStrip();
+  };
+
+  $("inspectResult").onclick=()=>{
+
+    $("modal")
+      .classList
+      .remove("open");
+
+    openInspect(item);
+  };
+
+  $("sellResult").onclick=()=>{
+
+    const index=
+      state.inventory
+      .findIndex(
+        x=>x.uid===item.uid
+      );
+
+    if(index>=0){
+
+      state.balance+=
+        state.inventory[index].price;
+
+      state.inventory
+        .splice(index,1);
+    }
+
+    $("modal")
+      .classList
+      .remove("open");
+
+    updateUI();
+
+    renderInventory();
+
+    idleStrip();
+  };
+}
+
+/* MULTI */
+
+function showMulti(list){
+
+  const total=
+    list.reduce(
+      (sum,item)=>
+        sum+item.price,
+      0
+    );
+
+  const best=
+    [...list]
+    .sort(
+      (a,b)=>
+        b.price-a.price
+    )[0];
+
+  winSound(
+    best.rarity
+  );
+
+  $("modalBody").innerHTML=`
+
+    <div class="result ${best.rarity}">
+
+      <h3>
+        Открыто: ${list.length}
+      </h3>
+
+      <div class="result-meta">
+        Стоимость полученных предметов
+      </div>
+
+      <div class="result-price">
+        ${money(total)}
+      </div>
+
+      <div style="
+        display:grid;
+        grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
+        gap:5px;
+        max-height:50vh;
+        overflow:auto;
+        margin:12px 0">
+
+        ${list.map(dropHTML).join("")}
+
+      </div>
+
+      <div class="result-buttons">
+
+        <button
+          id="keepMulti"
+          class="btn green">
+          Продолжить
+        </button>
+
+        <button
+          id="sellMulti"
+          class="btn">
+          Продать всё
+        </button>
+
+      </div>
+
+    </div>
+  `;
+
+  $("modal")
+    .classList
+    .add("open");
+
+  $("keepMulti").onclick=()=>{
+
+    $("modal")
+      .classList
+      .remove("open");
+
+    idleStrip();
+  };
+
+  $("sellMulti").onclick=()=>{
+
+    const ids=
+      new Set(
+        list.map(x=>x.uid)
+      );
+
+    let value=0;
+
+    state.inventory=
+      state.inventory
+      .filter(item=>{
+
+        if(ids.has(item.uid)){
+
+          value+=item.price;
+
+          return false;
+        }
+
+        return true;
+      });
+
+    state.balance+=value;
+
+    $("modal")
+      .classList
+      .remove("open");
+
+    updateUI();
+
+    renderInventory();
+
+    idleStrip();
+  };
+}
+
+/* INVENTORY */
+
+function renderInventory(){
+
+  $("inventory").innerHTML="";
+
+  if(!state.inventory.length){
+
+    $("inventory").innerHTML=
+      '<div class="empty">Инвентарь пуст</div>';
+
+    return;
+  }
+
+  state.inventory
+    .forEach(
+      (item,index)=>{
+
+        const wrapper=
+          document.createElement("div");
+
+        wrapper.className=
+          "inv-wrap";
+
+        wrapper.innerHTML=`
+
+          ${dropHTML(item)}
+
+          <button class="inspect-inv">
+            ОСМОТРЕТЬ
+          </button>
+
+          <button class="sell">
+            ПРОДАТЬ ${money(item.price)}
+          </button>
+        `;
+
+        wrapper
+          .querySelector(".inspect-inv")
+          .onclick=()=>{
+
+            openInspect(
+              item
+            );
+          };
+
+        wrapper
+          .querySelector(".sell")
+          .onclick=()=>{
+
+            state.balance+=
+              state.inventory[index]
+              .price;
+
+            state.inventory
+              .splice(
+                index,
+                1
+              );
+
+            updateUI();
+
+            renderInventory();
+          };
+
+        $("inventory")
+          .appendChild(
+            wrapper
+          );
+      }
+    );
+}
+
+$("sortBtn").onclick=()=>{
+
+  state.inventory
+    .sort(
+      (a,b)=>
+        b.price-a.price
+    );
+
+  renderInventory();
+
+  save();
+};
+
+$("sellAllBtn").onclick=()=>{
+
+  if(!state.inventory.length)
+    return;
+
+  if(!confirm("Продать весь инвентарь?"))
+    return;
+
+  const total=
+    state.inventory
+    .reduce(
+      (sum,item)=>
+        sum+item.price,
+      0
+    );
+
+  state.balance+=total;
+
+  state.inventory=[];
+
+  updateUI();
+
+  renderInventory();
+
+  notify(
+    "Продано на "+
+    money(total)
+  );
+};
+
+/* INSPECT */
+
+let inspectScale=1;
+let inspectX=0;
+let inspectY=0;
+let dragging=false;
+let lastX=0;
+let lastY=0;
+
+const rarityColors={
+  r1:"#4b69ff",
+  r2:"#8847ff",
+  r3:"#d32ce6",
+  r4:"#eb4b4b",
+  r5:"#e6bd36"
+};
+
+function updateInspect(){
+
+  $("inspectWeapon")
+    .style
+    .transform=
+      `translate(${inspectX}px,${inspectY}px) scale(${inspectScale})`;
+}
+
+function resetInspect(){
+
+  inspectScale=1;
+  inspectX=0;
+  inspectY=0;
+
+  updateInspect();
+}
+
+function openInspect(item){
+
+  $("inspectWeapon").src=
+    item.image;
+
+  $("inspectTitle").textContent=
+    (item.stattrak?"StatTrak™ ":"")+
+    item.weapon+
+    " | "+
+    item.skin;
+
+  $("inspectMeta").textContent=
+    item.wear.name+
+    " · Float "+
+    item.float.toFixed(8);
+
+  $("inspectRarity").textContent=
+    rarityLabel(
+      item.rarity
+    );
+
+  $("inspectRarity")
+    .style
+    .color=
+      rarityColors[
+        item.rarity
+      ];
+
+  resetInspect();
+
+  $("inspect")
+    .classList
+    .add("open");
+
+  document.body
+    .style
+    .overflow="hidden";
+
+  tone(
+    165,
+    .14,
+    .035,
+    "sine"
+  );
+}
+
+function closeInspect(){
+
+  $("inspect")
+    .classList
+    .remove("open");
+
+  $("inspect")
+    .classList
+    .remove("dragging");
+
+  dragging=false;
+
+  document.body
+    .style
+    .overflow="";
+}
+
+$("inspectClose").onclick=
+  closeInspect;
+
+$("inspectReset").onclick=
+  resetInspect;
+
+document.addEventListener(
+  "keydown",
+  event=>{
+
+    if(
+      event.key==="Escape" &&
+      $("inspect")
+      .classList
+      .contains("open")
+    ){
+
+      closeInspect();
+    }
+  }
+);
+
+$("inspectStage")
+  .addEventListener(
+    "wheel",
+    event=>{
+
+      event.preventDefault();
+
+      inspectScale+=
+        event.deltaY<0
+        ? .12
+        : -.12;
+
+      inspectScale=
+        Math.max(
+          .5,
+          Math.min(
+            4,
+            inspectScale
+          )
+        );
+
+      updateInspect();
+    },
+
+    {passive:false}
+  );
+
+$("inspectStage")
+  .addEventListener(
+    "pointerdown",
+    event=>{
+
+      if(event.button!==0)
+        return;
+
+      dragging=true;
+
+      lastX=event.clientX;
+      lastY=event.clientY;
+
+      $("inspect")
+        .classList
+        .add("dragging");
+
+      $("inspectStage")
+        .setPointerCapture(
+          event.pointerId
+        );
+    }
+  );
+
+$("inspectStage")
+  .addEventListener(
+    "pointermove",
+    event=>{
+
+      if(!dragging)
+        return;
+
+      inspectX+=
+        event.clientX-lastX;
+
+      inspectY+=
+        event.clientY-lastY;
+
+      lastX=
+        event.clientX;
+
+      lastY=
+        event.clientY;
+
+      updateInspect();
+    }
+  );
+
+function stopDrag(){
+
+  dragging=false;
+
+  $("inspect")
+    .classList
+    .remove("dragging");
+}
+
+$("inspectStage")
+  .addEventListener(
+    "pointerup",
+    stopDrag
+  );
+
+$("inspectStage")
+  .addEventListener(
+    "pointercancel",
+    stopDrag
+  );
+
+$("inspectStage")
+  .addEventListener(
+    "dblclick",
+    resetInspect
+  );
+
+/* UI */
+
+function updateOpenButton(){
+
+  const count=
+    +$("amount").value;
+
+  $("openBtn").textContent=
+    "Открыть за "+
+    money(
+      KEY_PRICE*
+      count
+    );
+
+  $("openBtn").disabled=
+    spinning ||
+    state.balance<
+    KEY_PRICE*count;
+}
+
+function updateUI(){
+
+  $("balance").textContent=
+    money(
+      state.balance
+    );
+
+  $("opened").textContent=
+    state.opened;
+
+  $("spent").textContent=
+    money(
+      state.spent
+    );
+
+  const value=
+    state.inventory
+    .reduce(
+      (sum,item)=>
+        sum+item.price,
+      0
+    );
+
+  $("invValue").textContent=
+    money(value);
+
+  $("invCount").textContent=
+    state.inventory.length;
+
+  updateOpenButton();
+
+  save();
+}
+
+document
+  .querySelectorAll(".tab")
+  .forEach(tab=>{
+
+    tab.onclick=()=>{
+
+      document
+        .querySelectorAll(".tab")
+        .forEach(
+          x=>
+            x.classList
+            .remove("active")
+        );
+
+      tab
+        .classList
+        .add("active");
+
+      const inventoryMode=
+        tab.dataset.tab==="inv";
+
+      $("casesTab").hidden=
+        inventoryMode;
+
+      $("invTab").hidden=
+        !inventoryMode;
+
+      if(inventoryMode)
+        renderInventory();
+    };
+  });
+
+$("amount").onchange=
+  updateOpenButton;
+
+$("moneyBtn").onclick=()=>{
+
+  state.balance+=
+    10000;
+
+  updateUI();
+
+  notify("+10 000 ₽");
+};
+
+$("resetBtn").onclick=()=>{
+
+  if(!confirm("Сбросить весь прогресс?"))
+    return;
+
+  state={
+    balance:25000,
+    opened:0,
+    spent:0,
+    inventory:[]
+  };
+
+  updateUI();
+
+  renderInventory();
+
+  notify(
+    "Прогресс сброшен"
+  );
+};
+
+load();
+</script>
+</body>
+</html>
