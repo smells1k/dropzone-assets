@@ -1,1 +1,67 @@
-
+это пример .json твоего кастом оружия/скина хз как назвать.
+{
+  "name": "имя скина",
+  "weapon": "НА КАКОЕ ОРУЖИЕ",
+  "rarity": "r1-5",
+  "image": "skin.png"
+}
+оружие из списка:
+Glock-18
+USP-S
+P2000
+P250
+Five-SeveN
+Tec-9
+CZ75-Auto
+Desert Eagle
+R8 Revolver
+Dual Berettas
+AK-47
+M4A4
+M4A1-S
+FAMAS
+Galil AR
+SG 553
+AUG
+SSG 08
+AWP
+G3SG1
+SCAR-20
+Nova
+XM1014
+MAG-7
+Sawed-Off
+Negev
+M249
+Karambit
+Butterfly Knife
+Bayonet
+Flip Knife
+Gut Knife
+Huntsman Knife
+Falchion Knife
+Bowie Knife
+Shadow Daggers
+Ursus Knife
+Navaja Knife
+Stiletto Knife
+Talon Knife
+Classic Knife
+Nomad Knife
+Skeleton Knife
+Survival Knife
+Paracord Knife
+Bloodhound Gloves
+Sport Gloves
+Driver Gloves
+Hand Wraps
+Moto Gloves
+Specialist Gloves
+Hydra Gloves
+Broken Fang Gloves
+редкости:
+r1	Mil-Spec Синий
+r2	Restricted Фиолетовый
+r3	Classified Розовый
+r4	Covert Красный
+r5	★ Rare Special Золото
